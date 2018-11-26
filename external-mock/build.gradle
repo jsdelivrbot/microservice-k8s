@@ -1,0 +1,70 @@
+buildscript {
+    repositories.addAll(extRepos)
+    ext {
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+        appVersioningPluginVersion = '1.0.0-SNAPSHOT'
+        springDependencyManagementVersion = '1.0.6.RELEASE'
+        springBootPluginVersion = '2.1.0.RELEASE'
+    }
+    dependencies {
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+        classpath "com.epam.gradle:app-versioning-gradle-plugin:$appVersioningPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootPluginVersion"
+    }
+}
+
+apply plugin: 'external_script'
+apply plugin: 'app_versioning'
+
+ext {
+    externalApiVersion = '2.0.0-SNAPSHOT'
+    commonVersion = '2.0.0-SNAPSHOT'
+    jvmArgs = '-Xmx512M'
+
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+group 'com.epam.external.mock'
+version '1.0.0-SNAPSHOT'
+
+apply from: "${commonScriptLocation}/common-base-service.gradle"
+apply plugin: 'project-report'
+
+dependencies {
+    compile "com.epam.contract.api.external:external-java-client-feign:$externalApiVersion"
+    compile "com.epam.contract.api.external:external-java-server-spring:$externalApiVersion"
+
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
+    compile "io.springfox:springfox-spring-web:2.9.2"
+    compile "io.springfox:springfox-swagger-ui:2.9.2"
+    compile "io.springfox:springfox-swagger-common:2.9.2"
+
+    compile "commons-io:commons-io:2.6"
+}
+
+//bootRepackage {
+//    classifier = 'standalone'
+//
+//}
+//
+//publishing {
+//    publications.remove(publishing.publications.mavenJava)
+//
+//    publications {
+//        standalone (MavenPublication) {
+//            groupId group
+//            version version
+//            artifactId rootProject.name + "-" + bootRepackage.classifier
+//            artifact(file("$buildDir/libs/$rootProject.name-$version-${bootRepackage.classifier}.jar"))
+//        }
+//
+//        mavenJava (MavenPublication) {
+//            from components.java
+//            groupId group
+//            version version
+//            artifactId rootProject.name
+//        }
+//    }
+//}

@@ -1,0 +1,27 @@
+buildscript {
+    repositories.addAll(extRepos)
+}
+
+apply from: "${commonScriptLocation}/app-versioning.gradle"
+apply from: "${commonScriptLocation}/bill-of-materials.gradle"
+apply from: "${commonScriptLocation}/static-analysis.gradle"
+apply from: "${commonScriptLocation}/deploy.gradle"
+apply from: "${commonScriptLocation}/cucumber.gradle"
+apply from: "${commonScriptLocation}/test.gradle"
+apply from: "${commonScriptLocation}/jacoco.gradle"
+apply from: "${commonScriptLocation}/sonar.gradle"
+
+allprojects {
+
+    dependencies {
+        compile "org.slf4j:slf4j-api"
+        compileOnly "org.projectlombok:lombok"
+    }
+}
+
+task 'gitHookConfig'{
+	println "git config --unset-all core.hookspath".execute().text
+    println "git config core.hooksPath ${commonScriptLocation}/lib-hooks --local".execute().text
+} 
+
+

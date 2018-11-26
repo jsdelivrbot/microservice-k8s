@@ -1,0 +1,33 @@
+allprojects {
+    version '2.0.0-SNAPSHOT'
+}
+
+buildscript {
+    repositories.addAll(extRepos)
+
+    ext {
+        springDependencyManagementVersion = '1.0.6.RELEASE'
+        //protobufPluginVersion = '0.8.5'
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+        commonVersion = '2.0.0-SNAPSHOT'
+    }
+
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementVersion"
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+        //classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufPluginVersion"
+    }
+}
+apply plugin: 'java'
+//apply plugin: 'com.google.protobuf'
+apply plugin: 'external_script'
+
+ext {
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+scriptExtension.resolveCommonContract("com.epam.contract.api:contract-commons:1.0.0-SNAPSHOT")
+
+apply from: "$commonScriptLocation/common-rest-contract.gradle"
+apply from: "${commonScriptLocation}/dependencies.gradle"
+

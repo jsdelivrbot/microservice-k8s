@@ -1,0 +1,41 @@
+---
+- name: Debug mount paths for lvm
+  debug:
+    msg: "VG {{ volume_group }} will be created for LVM {{ logical_volume }}, which will be mounted under {{ mount_path }}."
+
+- name: Install parted to be able to create partitions if needed
+  package:
+    name: parted
+    state: installed
+
+- name: remove existing mount for {{ blk_devices }}
+  mount:
+    name: /mnt
+    src: "{{ blk_devices }}"
+    state: absent
+    fstype: ext4
+
+- name: make an lvm volume group
+  lvg: vg={{ volume_group }} pvs={{ blk_devices }} pesize=32
+
+- name: make an lvm logical volume
+  lvol: vg={{ volume_group }} lv={{ logical_volume }} size=100%VG
+
+- name: ensure logical volume is formatted
+  filesystem: fstype=ext4 dev=/dev/{{ volume_group }}/{{ logical_volume }} resizefs=yes
+
+- name: "mount {{ logical_volume }} volume under {{ mount_path }}"
+  mount:
+    name: "{{ mount_path }}"
+    src: "/dev/{{ volume_group }}/{{ logical_volume }}"
+    state: mounted
+    fstype: ext4
+    opts: noatime,nofail
+
+- name: make directores under mount_path
+  file: path={{ mount_path }}/{{ item }} state=directory
+  with_items:
+    - "{{ mount_path_dirs }}"
+  when: mount_path_dirs is defined
+
+

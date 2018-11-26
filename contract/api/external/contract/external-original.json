@@ -1,0 +1,627 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "External API",
+    "description": "This API covers the following supported areas:\n- Document repository API\n- Account management API\n- Client management API\n- Security check API\n- Card issuer service API\n- Card network API\n",
+    "version": "1.1.0"
+  },
+  "tags": [
+    {
+      "name": "cards",
+      "description": "Card Management API"
+    }
+  ],
+  "consumes": [
+    "application/vnd.epam.card.management+json"
+  ],
+  "produces": [
+    "application/vnd.epam.card.management+json"
+  ],
+  "definitions": {
+    "IdResponse": {
+      "description": "Response containing only the ID of a resource.",
+      "properties": {
+        "id": {
+          "description": "Entity identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "ValidationErrorResponse": {
+      "description": "User friendly information about validation errors",
+      "properties": {
+        "code": {
+          "description": "Unique identifier of the occurred error",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Name of the validation error case",
+          "type": "string"
+        },
+        "message": {
+          "description": "Short message of the error",
+          "type": "string"
+        },
+        "description": {
+          "description": "Descriptive text explaining the details and background of the validation error",
+          "type": "string"
+        },
+        "classification": {
+          "description": "Classification of the error in case the content holds classified information",
+          "type": "string"
+        },
+        "additional": {
+          "description": "List of additional details that might provide information to client",
+          "type": "array",
+          "items": {
+            "description": "Field information in order to identify the cause of validation error",
+            "properties": {
+              "field": {
+                "description": "The name of the field that caused validation error",
+                "type": "string"
+              },
+              "message": {
+                "description": "Validation error message that belongs to this field only",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "Account": {
+      "properties": {
+        "clientId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    },
+    "ClientData": {
+      "properties": {
+        "clientId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    },
+    "ContractDocuement": {
+      "description": "Contract document",
+      "properties": {
+        "clientId": {
+          "description": "Client identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    },
+    "DocumentLink": {
+      "description": "An URL associated with the document in a storage",
+      "properties": {
+        "url": {
+          "description": "Document URL",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "Statement": {
+      "description": "Statement",
+      "properties": {
+        "clientId": {
+          "description": "Client identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    }
+  },
+  "parameters": {
+    "trait:clientaware:X-Client-ID": {
+      "description": "Contains the clientId. Example: 543210\n",
+      "type": "string",
+      "in": "header",
+      "name": "X-Client-ID",
+      "required": true
+    },
+    "trait:secured:X-Internal-Authorization-Token": {
+      "pattern": "\\{.*\\:\\{.*\\:.*\\}\\}",
+      "description": "Internal JSON representation of the OAuth Bearer token provided by the authorization server.\n",
+      "type": "string",
+      "in": "header",
+      "name": "X-Internal-Authorization-Token",
+      "required": true
+    }
+  },
+  "paths": {
+    "/document-repository/card-offer-details": {
+      "get": {
+        "description": "Retrieves the card offers details for the given card ID.",
+        "tags": [
+          "document-repository"
+        ],
+        "operationId": "getCardOfferDetails",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DocumentLink"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "debit_card_id"
+          }
+        ]
+      }
+    },
+    "/document-repository/card-terms-documents": {
+      "get": {
+        "description": "Retrieves the terms and conditions documents associated with the given offer.",
+        "tags": [
+          "document-repository"
+        ],
+        "operationId": "getCardTermsDocuments",
+        "produces": [
+          "body"
+        ],
+        "responses": {
+          "200": {
+            "description": "The terms and conditions",
+            "schema": {
+              "$ref": "#/definitions/DocumentLink"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "offer_id"
+          }
+        ]
+      }
+    },
+    "/document-repository/contracts": {
+      "post": {
+        "description": "Retrieves the terms and conditions documents associated with the given offer.",
+        "tags": [
+          "document-repository"
+        ],
+        "operationId": "storeContract",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DocumentLink"
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "client_id"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "offer_id"
+          }
+        ]
+      }
+    },
+    "/account-management": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "operationId": "getAccounts",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Account"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "client_id"
+          }
+        ]
+      }
+    },
+    "/account-management/verify-eligibility": {
+      "get": {
+        "description": "verify-eligibility",
+        "tags": [
+          "account"
+        ],
+        "operationId": "verifyEligibility",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "account_id"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "backs_debit_card_id"
+          }
+        ]
+      }
+    },
+    "/client-management": {
+      "get": {
+        "tags": [
+          "client-management"
+        ],
+        "operationId": "getClientData",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ClientData"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "client_id"
+          }
+        ]
+      }
+    },
+    "/security-check": {
+      "post": {
+        "tags": [
+          "security-check"
+        ],
+        "operationId": "verifyClient",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "client_id"
+          },
+          {
+            "required": true,
+            "enum": [
+              "debit_card_application",
+              "order_debit_card"
+            ],
+            "type": "string",
+            "in": "query",
+            "name": "verification_type"
+          }
+        ]
+      }
+    },
+    "/card-issuer": {
+      "get": {
+        "description": "The statements of the user's card accounts.",
+        "tags": [
+          "statements"
+        ],
+        "operationId": "getStatements",
+        "responses": {
+          "200": {
+            "description": "The list of the statements.\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Statement"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "description": "filter the result to the given card.",
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          },
+          {
+            "description": "The statement period (year + month).",
+            "type": "string",
+            "in": "query",
+            "name": "period"
+          }
+        ]
+      }
+    }
+  }
+}

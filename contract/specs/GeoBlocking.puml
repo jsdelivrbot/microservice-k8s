@@ -1,0 +1,120 @@
+@startuml
+
+skinparam sequence {
+ArrowThickness 2
+ArrowColor DarkBlue
+LifeLineBorderColor Blue
+ActorBorderColor Blue
+ParticipantBorderColor Blue
+}
+skinparam arrow {
+FontColor DarkBlue
+FontSize 14
+FontStyle bold
+}
+
+actor Client
+boundary WebApp
+
+participant "Card Management API" as CardMgmt #99FF99
+participant "Card Issuer Service" as Issuer
+participant "Card Network" as Network
+
+note right of Client
+Select Card
+end note
+Client->WebApp:Get cards
+activate Client
+activate WebApp
+note over CardMgmt #FF7F3F
+GET /cards?active
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GetCards(ClientID)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Card[]
+deactivate CardMgmt
+Client<--WebApp: List of cards
+deactivate WebApp
+
+|||
+Client->Client: Select card
+|||
+
+note right of Client
+See current status
+end note
+Client->WebApp:Get Regions
+activate WebApp
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/geoblockregions
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GetGeoblockRegions(ClientID, CardLastDigits)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Region[]
+deactivate CardMgmt
+Client<--WebApp: List of regions
+deactivate WebApp
+Client->WebApp:Get Countries
+activate WebApp
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/geoblockcountries
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GetGeoblockCountries(ClientID, CardLastDigits)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Country[]
+deactivate CardMgmt
+Client<--WebApp: List of countries
+deactivate WebApp
+ 
+|||
+Client->Client: Select Regions and Countries
+|||
+ 
+note right of Client
+GeoBlock card
+end note
+Client->WebApp: GeoBlock Card(CardLastDigits, Regions[])
+activate WebApp
+note over CardMgmt #FF7F3F
+POST /cards/{cardID}/geoblockregions
+    body:
+        Region[]
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GeoBlockRegions(ClientID, CardLastDigits,\n<font color=#007F00 size=20><b>Region[])
+activate CardMgmt #99FF99
+WebApp<--CardMgmt:Done
+deactivate CardMgmt
+Client<--WebApp: Done
+deactivate WebApp
+Client->WebApp: GeoBlock Card(CardLastDigits, Countries[])
+activate WebApp
+note over CardMgmt #FF7F3F
+POST /cards/{cardID}/geoblockcountries
+    body:
+        Country[]
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GeoBlockCountries(ClientID, CardLastDigits,\n<font color=#007F00 size=20><b>Country[])
+activate CardMgmt #99FF99
+WebApp<--CardMgmt:Done
+deactivate CardMgmt
+Client<--WebApp: Done
+deactivate WebApp
+
+Client->Network:Using the card
+...
+Network->Issuer:Application(CardNumber, ...)
+...
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/geoblockcountries/{countryIso}
+end note
+Issuer-[#007F00]>CardMgmt:<font color=#007F00 size=20><b>IsAllowedCountry(ClientID, CardLastDigits, CountryISOCode)
+activate Issuer
+activate CardMgmt
+Issuer<--CardMgmt:Allowed
+deactivate CardMgmt
+deactivate Issuer
+...
+Issuer->Network: Approved
+deactivate Client
+
+@enduml

@@ -1,0 +1,64 @@
+#%RAML 1.0 DataType
+
+type: !include Card.raml
+description: |
+  User manageable usage limits. These limits apply upon
+  the card, regardless of the account backing the card.
+  Also, when the card is going to be charged in different
+  currency, the normal conversion method (e.g. the closure
+  FX rate of the previous day) is used.
+properties:
+  dailyPurchaseLimit:
+    type: Amount
+    required: false
+  weeklyPurchaseLimit:
+    type: Amount
+    required: false
+  monthlyPurchaseLimit:
+    type: Amount
+    required: false
+  isPurchaseLimitLiftAllowed:
+    description: |
+      Tells whether the end customer wants to allow temporary lift of the
+      usage limit without eBanking or phoneBanking. Available only if the
+      Bank implements methods to lift the limit via alternative ways.
+      Typical scenario: end customer uses the card, gets refused, and gets
+      notification about exceeding the limit. Now s/he may send back his
+      own preset password and the just received one via SMS, which lifts
+      the block for that particular beneficiary only (lift is valid within
+      a certain time limit too).
+    type: boolean
+    required: false
+  purchaseTimeframeStart:
+    description: |
+      Allows the end customer to set the period of time within that
+      it is allowed to use the card in POS terminals to pay with.
+      This attribute means the daily starting hour of the period
+      (the given hour is included). The time is local for the current
+      geographical location of the card transaction where it occurs.
+    type: integer
+    required: false
+  purchaseTimeframeEnd:
+    description: |
+      Allows the end customer to set the period of time within that
+      it is allowed to use the card in POS terminals to pay with.
+      This attribute means the daily ending hour of the period
+      (the given hour is included). The time is local for the current
+      geographical location of the card transaction where it occurs.
+    type: integer
+    required: false
+  dailyWithdrawLimit:
+    description: |
+      The user may set daily withdraw limit upon the card. For security
+      reasons, this limit should not be lifted at all, or perhaps
+      a small lift amount might be allowed only. In this later case,
+      there should be another parameter how much that small amount
+      might possibly be.
+    type: Amount
+    required: false
+  weeklyWithdrawLimit:
+    type: Amount
+    required: false
+  monthlyWithdrawLimit:
+    type: Amount
+    required: false

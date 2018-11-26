@@ -1,0 +1,101 @@
+@startuml
+
+skinparam sequence {
+    ArrowThickness 2
+    ArrowColor DarkBlue
+    LifeLineBorderColor Blue
+    ActorBorderColor Blue
+    ParticipantBorderColor Blue
+}
+skinparam arrow {
+    FontColor DarkBlue
+    FontSize 14
+    FontStyle bold
+}
+
+actor Client #FF00FF
+actor "Bank Employee" as Bank #FFDFFF
+boundary WebApp #7FDFFF
+
+participant "Fund Transfer API" as Transfer
+participant "Card\nManagement API" as CardMgmt #99FF99
+participant "Account\nManagement API" as AccountMgmt
+participant "Batch Job" as Cleanup
+participant "Card Issuer Service" as Issuer
+participant "Card Network" as Network
+
+note over Client, Network
+Batch job reveales the pre-approved amount stuck
+end note
+
+Cleanup->Issuer: UnlockPreapprovedAmount(transactionID)
+activate Cleanup
+activate Issuer
+Issuer->Transfer: GetTransactions(transactionID)
+activate Transfer
+Issuer<-Transfer: Transaction[]
+deactivate Transfer
+|||
+note right of Issuer
+The query results both the pre-approval
+and the charge transactions
+end note
+Issuer->AccountMgmt: ReleaseAmount(AccountID, Amount)
+activate AccountMgmt
+Issuer<--AccountMgmt: Done
+deactivate AccountMgmt
+Cleanup<--Issuer: Done
+deactivate Issuer
+deactivate Cleanup
+|||
+...
+|||
+note over Client, Network
+Batch job discovers outdated pre-approved amount stuck
+end note
+Cleanup->Issuer: VerifyTransaction(TransactionID)
+activate Cleanup
+activate Issuer
+Issuer->Network: VerifyTransaction(TransactionID, Acquirer)
+activate Network
+Issuer<-Network: Aborted
+deactivate Network
+Issuer->Transfer: AbortTransfer(TransactionID)
+activate Transfer
+Issuer<--Transfer: Aborted
+deactivate Transfer
+Issuer->AccountMgmt: ReleaseAmount(AccountID, Amount)
+activate AccountMgmt
+Issuer<--AccountMgmt: Done
+deactivate AccountMgmt
+Cleanup<--Issuer: Done
+deactivate Issuer
+deactivate Cleanup
+|||
+...
+|||
+note over Client, Network
+Client discovers suscipious pending transactions
+end note
+Client->WebApp: Get pending transactions(LastFourDigits)
+activate Client #FF00FF
+activate WebApp #7FDFFF
+WebApp->Transfer: GetPendingTransactions(ClientID, LastFourDigits)
+activate Transfer
+WebApp<-Transfer: PendingTransaction[]
+deactivate Transfer
+Client<-WebApp: PendingTransaction[]
+deactivate WebApp
+|||
+Client->Bank: Challenge transaction (transactionID)
+activate Bank #FF00FF
+Bank->WebApp: GetTransactions(transactionID)
+activate WebApp #7FDFFF
+WebApp->Transfer: GetTransaction(transactionID)
+activate Transfer
+WebApp<--Transfer: Transaction[]
+Bank<--WebApp: Transaction[]
+
+
+
+@enduml

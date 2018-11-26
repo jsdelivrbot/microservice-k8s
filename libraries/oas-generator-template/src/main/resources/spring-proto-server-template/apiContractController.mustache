@@ -1,0 +1,23 @@
+package {{infoPackage}};
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+@RestController
+public class ApiContractController {
+
+    @RequestMapping(
+        value = "/api-contract",
+        produces = { "application/json" },
+        method = RequestMethod.GET)
+    public String getContract() throws IOException {
+        InputStream contractInputStream = this.getClass().getClassLoader().getResourceAsStream("contract/{{apiPackage}}.api.json");
+        return IOUtils.toString(contractInputStream, StandardCharsets.UTF_8);
+    }
+}

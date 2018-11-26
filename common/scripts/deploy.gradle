@@ -1,0 +1,46 @@
+buildscript {
+   repositories.addAll(extRepos)
+  
+   dependencies {
+     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.6.2"
+   }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+			artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}
+
+artifactory {
+    publish {
+        contextUrl = artifactory_contextUrl
+        repository {
+            repoKey = artifactory_repo_key
+            username = artifactory_user
+            password = artifactory_password
+        }
+		defaults {
+			publications('mavenJava')
+			publishArtifacts = true
+			publishPom = true
+		}
+    }
+	
+	resolve {
+		repoKey = artifactory_repo_key
+	}
+}

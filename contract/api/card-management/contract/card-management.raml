@@ -1,0 +1,695 @@
+#%RAML 1.0
+title: Card Management API
+version: 1.1.0
+
+mediaType: application/vnd.epam.card.management+json
+
+description: |
+  This API covers the following supported areas:
+  - Card Offers
+  - Card Contracts
+  - Card finance data
+  - Transactions
+  - Cards
+  - Geoblocks
+
+annotationTypes: !include external/annotations/OasAnnotation.raml
+
+(oas-tags-definition):
+  - name: cards
+    description: Card Management API
+
+traits:
+  clientaware: !include external/traits/clientaware.raml
+  paginated: !include external/traits/paginated.raml
+  expirable: !include external/traits/expirable.raml
+  modifiable: !include external/traits/modifiable.raml
+  sortable: !include external/traits/sortable.raml
+  secured: !include external/traits/secured.raml
+
+resourceTypes:
+  errorAware: !include external/resources/errorAware.raml
+
+types:
+  Address: !include types/Address.raml
+  Amount: !include types/Amount.raml
+  Balance: !include types/Balance.raml
+  Card: !include types/Card.raml
+  CardAccount: !include types/CardAccount.raml
+  CardBlock: !include types/CardBlock.raml
+  CardCustomParams: !include types/CardCustomParams.raml
+  CardDetails: !include types/CardDetails.raml
+  CardFee: !include types/CardFee.raml
+  CardProduct: !include types/CardProduct.raml
+  CardType: !include types/CardType.raml
+  CardUpdate: !include types/CardUpdate.raml
+  CardOffer: !include types/CardOffer.raml
+  CardOfferSigned: !include types/CardOfferSigned.raml
+  ContactInfo:  !include types/ContactInfo.raml
+  CardUsageRights: !include types/CardUsageRights.raml
+  CardUsageLimits: !include types/CardUsageLimits.raml
+  CardAccount: !include types/CardAccount.raml
+  ContractDetails: !include types/ContractDetails.raml
+  CountryGeoblock: !include types/CountryGeoblock.raml
+  CountryGeoblockRequest: !include types/CountryGeoblockRequest.raml
+  DefaultRegionGeoblock: !include types/DefaultRegionGeoblock.raml
+  DefaultCountryGeoblock: !include types/DefaultCountryGeoblock.raml
+  DocumentLink: !include types/DocumentLink.raml
+  DueFee: !include types/DueFee.raml
+  IdResponse: !include external/types/IdResponse.raml
+  OfferDocumentLink: !include types/OfferDocumentLink.raml
+  PhoneNumber: !include types/PhoneNumber.raml
+  PurchaseTransaction: !include types/PurchaseTransaction.raml
+  RegionGeoblock: !include types/RegionGeoblock.raml
+  RegionGeoblockRequest: !include types/RegionGeoblockRequest.raml
+  Statement: !include types/Statement.raml
+  Transaction: !include types/Transaction.raml
+  TransactionDetail: !include types/TransactionDetails.raml
+  ValidationErrorResponse: !include external/types/ValidationErrorResponse.raml
+  WithdrawTransaction: !include types/WithdrawTransaction.raml
+
+#
+#
+#
+/card-offers:
+  type: errorAware
+  get:
+    (oas-tags):
+      - card-offers
+    displayName: getCardOffers
+    description:  Retrieves the card offers available for the given account.
+    is: [
+       clientaware
+    ]
+    queryParameters:
+      account_id:
+        description: The accountID the offer should be created for
+        type: string
+        required: true
+      card_type:
+        description: Card type.
+        type: CardType
+        required: true
+    responses:
+      200:
+        description: List of the card offers
+        body:
+          type: CardOffer[]
+      # other codes - see errorAware
+
+  /{offerId}/conditions:
+    type: errorAware
+    get:
+      (oas-tags):
+        - card-offers
+      displayName: getCardConditions
+      description: Retrieves the terms and conditions associated with the given offer.
+      responses:
+        200:
+          description: The terms and conditions
+          body:
+            description: The terms and conditions document
+            type: OfferDocumentLink
+
+/contracts:
+  type: errorAware
+  get:
+    (oas-tags):
+      - contracts
+    displayName: getUserContracts
+    description: Get the list of the user's contracts.
+    is: [clientaware]
+    queryParameters:
+      card_id:
+        description: Restrict the query to one specific card only.
+        type: string
+        required: false
+    responses:
+      200:
+        description: The list of contracts
+        body:
+          type: ContractDetails[]
+  post:
+    (oas-tags):
+      - contracts
+    displayName: createContract
+    description: |
+      Create a new contract
+    is: [clientaware]
+    body:
+      type: ContractDetails
+    responses:
+      202:
+        description: The new contract is saved successfully.
+        headers:
+          location:
+            type: string
+            description: URL of the new contract.
+            example: /cards/{cardId}/contract
+      # other codes - see errorAware resource type
+  /{contractID}:
+    type: errorAware
+    get:
+      (oas-tags):
+        - contracts
+      displayName: getContract
+      description: Retrieves the contract details.
+      is: [clientaware]
+      responses:
+        200:
+          description: Contract details.
+          body:
+            type: ContractDetails
+    patch:
+      (oas-tags):
+        - contracts
+      displayName: modifyContract
+      description: Updates the contract
+      is: [clientaware]
+      body:
+        type: ContractDetails
+      responses:
+        202:
+          description: The modified contract is saved successfully.
+        # other codes - see errorAware resource type
+    delete:
+      (oas-tags):
+        - contracts
+      displayName: terminateContract
+      description: Terminates the resource
+      is: [clientaware]
+      responses:
+        204:
+          description: The contract is terminated
+
+/accounts:
+  type: errorAware
+  get:
+    (oas-tags):
+      - accounts
+    displayName: getCardAccounts
+    description: |
+      Retrieves the list of the accounts that potentially may back
+      the bank cards of the end customer.
+    is: [clientaware]
+    queryParameters:
+      card_id:
+        description: filter the result to those that might support the given card.
+        type: string
+        required: false
+      card_type:
+        description: filter the result to those that might support the given card type.
+        type: string
+        required: false
+        example: visa
+      filter:
+        description: |
+          Use this filter together with the cardId if only the currently
+          assigned, or all possible accounts are needed.
+          Current means the currently assigned accounts.
+          Unassigned means those that might be assigned to a card the user
+          already holds, but not currently assigned to any.
+          Assignable means all accounts the user may want to assign to a card
+          he already has (current+unassigned).
+          Available means the accounts that might back a card, but
+          the user has no card that might be backed by these accounts.
+          All means just that, all (assignable+available).
+        required: false
+        enum:
+          - current
+          - unassigned
+          - assignable
+          - available
+          - all
+        default: current
+    responses:
+      200:
+        description: |
+          List of the accounts that might back a card.
+        body:
+          type: CardAccount[]
+      # other codes - see errorAware resource type
+
+/balances:
+  type: errorAware
+  get:
+    (oas-tags):
+      - balances
+    displayName: getBalances
+    description: The balances of the user's card accounts.
+    is: [clientaware]
+    queryParameters:
+      card_id:
+        description: filter the result to the given card.
+        type: string
+        required: false
+      filter:
+        description: |
+          Use this filter together with the cardId if only the currently
+          assigned, or all possible accounts are needed.
+          Current means the currently assigned accounts.
+          Unassigned means those that might be assigned to a card the user
+          already holds, but not currently assigned to any.
+          Assignable means all accounts the user may want to assign to a card
+          he already has (current+unassigned).
+        required: false
+        enum:
+          - current
+          - unassigned
+          - assignable
+          - all
+        default: assignable
+    responses:
+      200:
+        description: |
+          List of the balances.
+        body:
+          type: Balance[]
+      # other codes - see errorAware resource type
+
+/statements:
+  type: errorAware
+  get:
+    (oas-tags):
+      - statements
+    displayName: getStatements
+    description: The statements of the user's card accounts.
+    is: [clientaware]
+    queryParameters:
+      card_id:
+        description: filter the result to the given card.
+        type: string
+        required: false
+      period:
+        description: The statement period (year + month).
+        type: string
+        required: false
+        example: '2018-03'
+    responses:
+      200:
+        description: |
+          The list of the statements.
+        body:
+          type: Statement[]
+      # other codes - see errorAware resource type
+
+/transactions:
+  type: errorAware
+  get:
+    (oas-tags):
+      - transactions
+    displayName: getTransactions
+    description: |
+      Retrieves the transactions of the cards.
+    is: [clientaware]
+    queryParameters:
+      card_id:
+        description: Filter the result to the given card.
+        type: string
+        required: false
+      start_date:
+        description: |
+          Transactions booked from this day on. If this date is missing,
+          then the endDate - 31 days is the default. If the end date is
+          missing too, then the last 31 days are used.
+        type: datetime
+        required: false
+        example: '2018-03-07'
+      end_date:
+        description: |
+          Transactions booked until this day. If this date is missing,
+          then the startDate + 31 days (or startDate until today) is the
+          default. If the start date is missing too, then the last 31 days
+          are used.
+        type: datetime
+        required: false
+        example: '2018-04-09'
+      type:
+        description: |
+          The type of the transactions that should be included.
+        enum:
+          - booked
+          - pending
+          - revoked
+        required: false
+    responses:
+      200:
+        description: |
+          The list of the transactions.
+        body:
+          type: Transaction[]
+      # other codes - see errorAware resource type
+  /{transactionId}:
+    type: errorAware
+    get:
+      (oas-tags):
+        - transactions
+      displayName: getTransactionDetails
+      description: Retrieve the details of the transaction
+      is: [clientaware]
+      responses:
+        200:
+          description: The transaction details.
+          body:
+            type: TransactionDetail
+        # other codes - see errorAware resource type
+
+/purchase-transactions:
+  post:
+    (oas-tags):
+      - purchase-transactions
+    displayName: allowPurchaseTransaction
+    description: approves or forbids the transaction
+    is: [clientaware]
+    body:
+      type: PurchaseTransaction
+    responses:
+      200:
+        description: The purchase transaction is approved.
+      403:
+        description: The purchase transaction is prohibited.
+
+/withdraw-transactions:
+  post:
+    (oas-tags):
+      - withdraw-transactions
+    displayName: allowWithdrawTransaction
+    description: approves or forbids the transaction
+    is: [clientaware]
+    body:
+      type: WithdrawTransaction
+    responses:
+      200:
+        description: The withdraw transaction is approved.
+      403:
+        description: The withdraw transaction is prohibited.
+
+/fees:
+  type: errorAware
+  get:
+    (oas-tags):
+      - fees
+    displayName: getFeesDue
+    description: Retrieves the due fees.
+    is: [clientaware]
+    queryParameters:
+      card_id:
+        type: string
+        required: true
+    responses:
+      200:
+        description: Due fees
+        body:
+          type: DueFee
+      # other codes - see errorAware resource type.
+
+/cards:
+  type: errorAware
+  get:
+    (oas-tags):
+      - cards
+    displayName: getCards
+    description: Retrieves the client's most recent card information.
+    is: [
+      clientaware
+    ]
+    queryParameters:
+      card_status:
+        type: string
+        required: false
+        example: ?cardStatus=active
+    responses:
+      200:
+        description: List of the most recent cards that belong to the given client.
+        body:
+          type: Card[]
+      # other codes - see errorAware resource type
+  post:
+    (oas-tags):
+      - cards
+    displayName: createCard
+    description: Stores the newly printed card.
+    body:
+      type: CardDetails
+    responses:
+      202:
+        description: The new card is saved successfully.
+        headers:
+          location:
+            type: string
+            description: URL of the new card.
+            example: /cards/{cardId}
+      # other codes - see errorAware resource type
+
+  /{cardId}:
+    type: errorAware
+    get:
+      (oas-tags):
+        - cards
+      displayName: getCardDetails
+      description: Retrieves the card details.
+      responses:
+        200:
+          description: The card details.
+          body:
+            type: CardDetails
+        # other codes - see errorAware resource type
+    patch:
+      (oas-tags):
+        - cards
+      displayName: updateCardDetails
+      description:  Updates the card's modifiable parameters
+      body:
+        type: CardUpdate
+      responses:
+        202:
+          description: The card is updated.
+          headers:
+            location:
+              type: string
+              description: URL of the updated card.
+              example: /cards/{cardId}
+        # other codes - see errorAware resource type
+
+    /{cardId}/blocks:
+      type: errorAware
+      post:
+        (oas-tags):
+          - cards
+        displayName: blockCard
+        description: Adds new block to the card
+        is: [clientaware]
+        body:
+          type: CardBlock
+        responses:
+          201:
+            description: The card block is added
+            headers:
+              location:
+                type: string
+                description: URL of the updated card block.
+                example: /cards/{cardId}/blocks
+          # other codes - see errorAware resource type
+
+    /{cardId}/addresses:
+      type: errorAware
+      get:
+        (oas-tags):
+          - cards
+        displayName: getCardAddress
+        description: Retrieves the specific address associated with the card
+        is: [clientaware]
+        responses:
+          200:
+            description: The card details containing the addresses
+            body:
+              type: CardUpdate
+          # other codes - see errorAware resource type
+
+    /{cardId}/first-time-pins:
+      type: errorAware
+      post:
+        (oas-tags):
+          - cards
+        displayName: sendFirstTimePin
+        description: Asks to send the first time PIN to the previously agreed phone or email
+        responses:
+          204:
+            description: the first time pin is sent.
+          # other codes - see errorAware resource type
+
+    /{cardId}/custom-params:
+      type: errorAware
+      get:
+        (oas-tags):
+          - cards
+        displayName: getCardCustomParams
+        description:  Retrieves the end customer customizable parameters of the card
+        is: [clientaware]
+        responses:
+          200:
+            description: The object containing the customizable attributes of the card.
+            body:
+              type: CardCustomParams
+          # other codes - see errorAware resource type
+      patch:
+        (oas-tags):
+          - cards
+        displayName: setCardCustomParams
+        description: |
+          Updates the provided customizable parameter(s). For each card, there
+          always only one single customizable parameter object exists.
+        body:
+          type: CardCustomParams
+        responses:
+          200:
+            description: The customizable parameters are updated successfully.
+          # other codes - see errorAware resource type
+
+    /{cardId}/usage-rights:
+      type: errorAware
+      get:
+        (oas-tags):
+          - cards
+        displayName: getCardUsageRights
+        description:  Retrieves the usage rights of the card
+        is: [clientaware]
+        responses:
+          200:
+            description: The object containing the usage rights of the card.
+            body:
+              type: CardUsageRights
+          # other codes - see errorAware resource type
+      patch:
+        (oas-tags):
+          - cards
+        displayName: setCardUsageRights
+        description: |
+          Updates the provided usage rights. For each card, there
+          always only one single usage rights object exists.
+        body:
+          type: CardUsageRights
+        responses:
+          200:
+            description: The usage rights are updated successfully.
+          # other codes - see errorAware resource type
+
+    /{cardId}/usage-limits:
+      type: errorAware
+      get:
+        (oas-tags):
+          - cards
+        displayName: getCardUsageLimits
+        description:  Retrieves the usage limits of the card
+        is: [clientaware]
+        responses:
+          200:
+            description: The object containing the usage limits of the card.
+            body:
+              type: CardUsageLimits
+          # other codes - see errorAware resource type
+      patch:
+        (oas-tags):
+          - cards
+        displayName: setCardUsageLimits
+        description: |
+          Updates the provided usage limits. For each card, there
+          always only one single usage limits object exists.
+        body:
+          type: CardUsageLimits
+        responses:
+          200:
+            description: The usage limits are updated successfully.
+          # other codes - see errorAware resource type
+
+    /{cardId}/region-geoblocks:
+      type: errorAware
+      get:
+        (oas-tags):
+          - cards
+        displayName: getRegionGeoblocks
+        description: Retrieves the region-level geoblock configuration for a particular card.
+        is: [clientaware]
+        responses:
+          200:
+            description: List of the region-level geoblock configuration that belong to the given card.
+            body:
+              type: RegionGeoblock[]
+          # other codes - see errorAware resource type
+      post:
+        (oas-tags):
+          - cards
+        displayName: createRegionGeoblock
+        description: Created the region-level geoblock configuration for a particular card.
+        is: [clientaware]
+        body:
+          type: RegionGeoblockRequest
+        responses:
+          202:
+            description: The region-level geoblock configuration is saved successfully.
+            headers:
+              location:
+                type: string
+                description: URL of the region-level geoblock configurations.
+                example: /cards/{cardId}/region-geoblocks
+          # other codes - see errorAware resource type
+
+    /{cardId}/country-geoblocks:
+      type: errorAware
+      get:
+        (oas-tags):
+          - cards
+        displayName: getCountryGeoblocks
+        description: Retrieves the country-level geoblock configuration for a particular card.
+        is: [clientaware]
+        responses:
+          200:
+            description: List of the country-level geoblock configuration that belong to the given card.
+            body:
+              type: CountryGeoblock[]
+          # other codes - see errorAware resource type
+      post:
+        (oas-tags):
+          - cards
+        displayName: createCountryGeoblock
+        description: Created the country-level geoblock configuration for a particular card.
+        is: [clientaware]
+        body:
+          type: CountryGeoblockRequest
+        responses:
+          202:
+            description: The country-level geoblock configuration is saved successfully.
+            headers:
+              location:
+                type: string
+                description: URL of the country-level geoblock configurations.
+                example: /cards/{cardId}/country-geoblocks
+          # other codes - see errorAware resource type
+
+/region-geoblocks:
+  type: errorAware
+  get:
+    (oas-tags):
+      - region-geoblocks
+    displayName: getDefaultRegionGeoblocks
+    description: Retrieves the bank-default geoblock configuration for all regions.
+    is: [clientaware]
+    responses:
+      200:
+        description: List of the bank-default geoblock configuration for all regions.
+        body:
+          type: DefaultRegionGeoblock[]
+
+/country-geoblocks:
+  type: errorAware
+  get:
+    (oas-tags):
+      - country-geoblocks
+    displayName: getDefaultCountryGeoblocks
+    description: Retrieves the bank-default geoblock configuration for all countries.
+    is: [clientaware]
+    responses:
+      200:
+        description: List of the bank-default geoblock configuration for all countries.
+        body:
+          type: DefaultCountryGeoblock[]

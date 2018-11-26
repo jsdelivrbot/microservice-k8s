@@ -1,0 +1,3 @@
+com.epam:common:1.0.0-SNAPSHOT
+com.epam.contract.api:contract-commons:1.0.0-SNAPSHOT
+com.epam.gradle:external-script-gradle-plugin:1.0.0-SNAPSHOT

@@ -1,0 +1,69 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "service.fullname" . }}
+  labels:
+    app: {{ template "service.name" . }}
+    chart: {{ template "service.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "service.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "service.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          {{ if .Values.image.name }}
+          image: {{ .Values.image.repository }}/{{ .name }}:{{ .Values.image.tag }}
+          {{ else }}
+          image: {{ .Values.image.repository }}/{{ template "service.name" . }}:{{ .Values.image.tag }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: JAVA_OPTS
+              value: {{ .Values.java.opts }}
+          ports:
+            - name: debug
+              containerPort: 5005
+              protocol: TCP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+#          livenessProbe:
+#            initialDelaySeconds: {{ .Values.containers.initialDelaySeconds }}
+#            periodSeconds: {{ .Values.containers.periodSeconds }}
+#            httpGet:
+#              path: /env
+#              port: http
+#          readinessProbe:
+#            initialDelaySeconds: {{ .Values.containers.initialDelaySeconds }}
+#            periodSeconds: {{ .Values.containers.periodSeconds }}
+#            httpGet:
+#              path: /env
+#              port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret }}
+    {{- end}}

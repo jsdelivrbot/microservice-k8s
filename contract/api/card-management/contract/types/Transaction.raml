@@ -1,0 +1,16 @@
+#%RAML 1.0 DataType
+
+description: Account properties relevant for card management
+properties:
+  transactionId:
+    type: string
+    required: true
+  transactionAmount:
+    type: Amount
+    required: true
+  transactionDateTime:
+    type: datetime-only
+    required: true
+  beneficiary:
+    type: string
+    required: true

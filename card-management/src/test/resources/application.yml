@@ -1,0 +1,39 @@
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    serialization-inclusion: non_null
+    default-property-inclusion: non_null
+  datasource:
+      url: jdbc:h2:mem:db
+      driver-class-name: org.h2.Driver
+      username: sa
+      password: sa
+      hikari:
+        idle-timeout: 10000
+        minimum-idle: 2
+        maximum-pool-size: 5
+        pool-name: h2-db-pool
+        connection-test-query: "select 1"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+liquibase:
+  change-log: classpath:migration/card-management-liquibase-changelog.xml
+logging:
+  pattern:
+    console: "%date{ISO8601} [%thread] %level %logger - %msg%n"
+  level:
+    ROOT: INFO
+    com.epam: DEBUG
+management:
+  security:
+    enabled: false
+
+scheduler:
+  clean.cron: "0 0 1 * * *"
+
+timezone: UTC
+
+cardManagement_.url: http://localhost:8080
+cardManagement_.name: http://localhost:8080

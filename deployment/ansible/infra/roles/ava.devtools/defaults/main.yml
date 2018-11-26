@@ -1,0 +1,8 @@
+---
+# defaults file for devtools
+devtools_packages:
+  - git
+  - mc
+  - telnet
+  - vim
+  - nano

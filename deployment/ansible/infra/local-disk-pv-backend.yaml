@@ -1,0 +1,16 @@
+---
+- name: Prepare k8s-nodes (workers) for local volume provisioning
+  become: true
+  hosts: kube-node
+  vars:
+    volume_group: vgstorage
+    logical_volume: lvstorage
+    mount_path: /mnt/disks
+    blk_devices: /dev/sdc
+  pre_tasks:
+  - name: Debug Local Volume Provisionar disks
+    debug:
+      msg: "VG {{ volume_group }} will be created on {{ blk_devices }} for LVM {{ logical_volume }}, which will be mounted under {{ mount_path }}."
+  roles:
+    - ava.disks
+

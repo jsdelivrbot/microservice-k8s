@@ -1,0 +1,143 @@
+@startuml
+
+skinparam sequence {
+	ArrowColor DarkBlue
+	ArrowThickness 2
+	LifeLineBorderColor Blue
+	ActorBorderColor #FF00FF
+	ParticipantBorderColor Blue
+}
+skinparam arrow {
+	FontColor DarkBlue
+	FontSize 14
+	FontStyle bold
+}
+
+actor Client #FF00FF
+boundary WebApp #7FDFFF
+participant "Card Management API" as CardMgmt #99FF99
+participant "SMS/email Gateway" as SMS
+participant "Card Issuer Service" as Issuer
+participant "ATM Server" as ATM
+participant "Card Network" as Network
+
+note left of Network
+Card is created and ready for use
+end note
+Network->Issuer: CardIsReady(OrderID, CardNumber)
+activate Issuer
+Issuer->Issuer: GetApplicationID(OrderID)
+|||
+note right of Issuer
+Prepare card for first usage
+end note
+Issuer->ATM:SetFirstTimePIN(Card)
+activate ATM
+ATM->ATM:GenerateFirstTimePIN()
+ATM->ATM: StoreTimestamp(ApplicationID,\nCurrentDateTime, "FirstTimePIN")
+Issuer<--ATM:Acknowledged
+deactivate ATM
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/addresses?cardmailaddress
+end note
+Issuer-[#007F00]>CardMgmt: <font color=#007F00><b>getCardAddress(ClientID, CardLastDigits)
+activate CardMgmt #00FF00
+Issuer<--CardMgmt: Address
+deactivate CardMgmt
+Issuer-[#FF00FF]>Client: <font color=#FF00FF><b>Mail Card
+activate Client #FF00FF
+deactivate Client
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}
+end note
+Issuer-[#007F00]>CardMgmt: <font color=#007F00><b>IsEActivated(ClientID, CardLastDigits)
+activate CardMgmt #00FF00
+Issuer<--CardMgmt: Yes/No
+deactivate CardMgmt
+|||
+group Opt traditional activation
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/addresses?pinaddress
+end note
+Issuer-[#007F00]>CardMgmt: <font color=#007F00><b>getPinAddress(ClientID, CardLastDigits)
+activate CardMgmt #00FF00
+Issuer<--CardMgmt: Address
+deactivate CardMgmt
+Issuer->ATM:MailPIN(Address)
+activate ATM
+ATM-[#FF00FF]>Client: <font color=#FF00FF><b>Mail PIN
+activate Client #FF00FF
+Issuer<--ATM:Done
+deactivate ATM
+deactivate Issuer
+end
+...
+|||
+group Opt e-Activation
+|||
+note right of Client
+Select inactive card
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>Select Inactive Card
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards?inactive
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00><b>GetInactiveCards(ClientID)
+activate CardMgmt #00FF00
+WebApp<--CardMgmt: Cards[]
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>List of cards
+deactivate WebApp
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF><b>Select card
+
+|||
+note right of Client
+Get First Time PIN
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>Get first time PIN
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+POST /cards/{cardID}/first-time-pin
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00><b>SendFirstTimePIN(ClientID, CardLastDigits)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>Issuer: <font color=#7F0000><b>SendFirstTimePIN(ClientID, CardLastDigits, PhoneNr)
+activate Issuer
+Issuer->ATM:SendFirstTimePIN(Card, PhoneNr)
+activate ATM
+ATM->SMS:SendMessage(PhoneNr, FirstTimePIN)
+activate SMS
+Client<[#FF00FF]-SMS:<font color=#FF00FF><b>Message(FirstTimePIN)
+ATM<--SMS: Done
+deactivate SMS
+Issuer<--ATM:Done
+deactivate ATM
+CardMgmt<--Issuer: Acknowledged
+deactivate Issuer
+WebApp<--CardMgmt: Acknowledged
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>first time PIN sent
+deactivate WebApp
+end
+...
+note right of Client
+Change First Time PIN
+end note
+|||
+Client-[#FF00FF]>ATM: <font color=#FF00FF><b>Change PIN (CARD, FirstTimePIN, NewPIN)
+activate ATM
+ATM->Issuer: ActivateCard(ClientID, CardLastDigits)
+activate Issuer
+Issuer-[#007F00]>CardMgmt: <font color=#007F00><b>ActivateCard(ClientID, CardLastDigits, SequenceNumber)
+activate CardMgmt #00FF00
+Issuer<--CardMgmt: Done
+deactivate CardMgmt
+ATM<--Issuer: Success
+deactivate Issuer
+Client<[#FF00FF]--ATM: <font color=#FF00FF><b>Activated
+deactivate ATM
+deactivate Client
+|||
+@enduml

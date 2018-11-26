@@ -1,0 +1,20 @@
+---
+- name: Prepare k8s-cluster nodes for kubernetes deployment, create an LVM on attached disks for Docker and k8s NFS based PV
+  become: true
+  hosts: k8s-cluster
+  roles:
+    - { role: ava.disks, volume_group: vgstorage, logical_volume: lv_persistent_volumes, mount_path: /mnt/disks, blk_devices: /dev/sdc }
+    - { role: geerlingguy.ntp }
+    - { role: ava.noswap }
+    - { role: ava.domains }
+    - { role: ava.osupdate }
+    - { role: ava.nfsutils }
+    - { role: ava.disks } # prepares /dev/sdb disks to be used by docker
+  post_tasks:
+  - name: Set ip forwarding on in /proc and do not reload the sysctl file
+    sysctl:
+      name: net.ipv4.ip_forward
+      value: 1
+      sysctl_set: yes
+
+

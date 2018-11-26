@@ -1,0 +1,128 @@
+@startuml
+
+skinparam sequence {
+ArrowThickness 2
+ArrowColor DarkBlue
+LifeLineBorderColor Blue
+ActorBorderColor Blue
+ParticipantBorderColor Blue
+}
+skinparam arrow {
+FontColor DarkBlue
+FontSize 14
+FontStyle bold
+}
+
+actor Client
+actor "Bank Employee" as Bank
+boundary WebApp
+
+participant "Card\nManagement API" as CardMgmt #99FF99
+participant "Document\nRepository" as Repo
+participant "Account\nManagement API" as AccountMgmt
+participant "Fund Transfer API" as Transfer
+participant "Client\nManagement API" as CRM
+participant "Security Check API" as Security
+participant "Card Issuer Service" as Issuer
+
+Client-[#FF00FF]>Bank: Terminate contract
+activate Client #FF00FF
+activate Bank #FF7FFF
+|||
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>VerifyClient(identity)
+activate WebApp #7FDFFF
+WebApp->CRM: GetClientData(identity)
+activate CRM
+WebApp<--CRM: ClientData
+deactivate CRM
+Bank<--WebApp: <font color=#FF00FF><b>ClientData
+deactivate WebApp
+
+|||
+
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>Get contract(ClientID)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /contracts?card={cardId}
+end note
+WebApp-[#007F00]>CardMgmt: GetContract(ClientID, LastFourDigits)
+activate CardMgmt #00FF00
+WebApp<--CardMgmt: Contract
+deactivate CardMgmt
+Bank<-WebApp: <font color=#FF00FF><b>Contract
+deactivate WebApp
+
+|||
+
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>Get fees(ClientID, LastFourDigits)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /fees?card={cardId}
+end note
+WebApp-[#007F00]>CardMgmt: GetFees(ClientID, LastFourDigits)
+activate CardMgmt #00FF00
+WebApp<--CardMgmt: Fees
+deactivate CardMgmt
+Bank<-WebApp: <font color=#FF00FF><b>Fees
+deactivate WebApp
+
+|||
+
+Client<-Bank: Please pay or transfer the fees within 21 days
+
+|||
+
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>Block card
+activate WebApp
+note over CardMgmt #FF7F3F
+POST /cards/{cardID}/blocks
+end note
+WebApp-[#00FF00]>CardMgmt: BlockCard(ClientID, LastFourDigits)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>Issuer: BlockCard(ClientID, LastFourDigits)
+activate Issuer
+CardMgmt<--Issuer: Done
+deactivate Issuer
+CardMgmt-[#7F0000]>Transfer: BlockCard(ClientID, AccountID, LastFourDigits)
+activate Transfer
+CardMgmt<-Transfer: Done
+deactivate Transfer
+WebApp<--CardMgmt: Done
+deactivate CardMgmt
+Bank<--WebApp: Done
+deactivate WebApp
+
+|||
+
+Bank->WebApp: Terminate contract(clientID, contractID, LastFourDigits)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+PATCH /contracts/{contractID}
+end note
+WebApp-[#007F00]>CardMgmt: Mark Contract as Pending Terminated(clientID, contractID, LastFourDigits)
+activate CardMgmt #00FF00
+WebApp<--CardMgmt: Done
+deactivate CardMgmt
+Bank<--WebApp: Done
+deactivate WebApp
+Client<-Bank: Contract is pending terminated
+deactivate Bank
+deactivate Client
+...
+note over CardMgmt
+30 days later the trigger hits
+end note
+
+CardMgmt->Transfer: getTransfersSinceBlocked(ClientID, LastFourDigits)
+activate CardMgmt #00FF00
+activate Transfer
+CardMgmt<--Transfer: Transactions[]
+deactivate Transfer
+CardMgmt->CardMgmt: Finalize termination
+CardMgmt->Repo: StoreContractTermination(ClientID, LastFourDigits, ContractID)
+activate Repo
+CardMgmt<-Repo: Done
+deactivate Repo
+deactivate CardMgmt
+
+@enduml

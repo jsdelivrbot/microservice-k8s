@@ -1,0 +1,79 @@
+allprojects {
+
+    ext {
+        jacocoVersion = '0.8.1'
+        excludeJacocoPaths = ["**/config/**"]
+        lineCoverageLevel = 0.1
+    }
+
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = "$jacocoVersion"
+        reportsDir = file("$buildDir/customJacocoReportDir")
+        //println 'jacoco config'
+    }
+
+    testUnit {
+        jacoco {
+            append = true
+            excludes += excludeJacocoPaths
+            destinationFile = file("$buildDir/jacoco/testUnit.exec")
+        }
+        finalizedBy jacocoTestReport
+    }
+
+    test {
+        jacoco {
+            append = true
+            excludes += excludeJacocoPaths
+            destinationFile = file("$buildDir/jacoco/testUnit.exec")
+        }
+        finalizedBy jacocoTestReport
+    }
+
+    
+    testComponent {
+        jacoco {
+            append = true
+            excludes += excludeJacocoPaths
+            destinationFile =  file("$buildDir/jacoco/testComponent.exec")
+        }
+        finalizedBy jacocoTestReport
+    }
+
+
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination = file("${buildDir}/reports/jacoco/")
+            executionData = fileTree(dir: "$buildDir", includes: [
+                "jacoco/testUnit.exec", 
+                "jacoco/testComponent.exec"
+            ])
+            afterEvaluate {
+                classDirectories = files(classDirectories.files.collect {
+                    fileTree(dir: it, exclude: excludeJacocoPaths)
+                })
+            }
+        }
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                enabled = false
+                excludes += excludeJacocoPaths
+                limit {
+                    minimum = lineCoverageLevel
+                }
+            }
+        }
+    }
+
+    check.dependsOn('jacocoTestCoverageVerification')
+    jacocoTestCoverageVerification.dependsOn('jacocoTestReport')
+
+} 

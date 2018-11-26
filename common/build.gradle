@@ -1,0 +1,22 @@
+buildscript {
+	repositories.addAll(extRepos)
+
+//    ext {
+//        oasGeneratorTemplateVersion = '1.1.0-SNAPSHOT'
+//    }
+
+//    dependencies {
+//        classpath "com.epam.oas:oas-generator-template:$oasGeneratorTemplateVersion"
+//    }
+}
+
+group 'com.epam'
+version '2.0.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+apply from: './scripts/deploy.gradle'
+
+sourceSets.main.resources {
+    srcDirs = ["scripts"]
+}

@@ -1,0 +1,8 @@
+---
+# Install and configre Jenkins (standalone VM)
+- name: Install and configure Jenkins server
+  become: true
+  hosts: jenkins_servers
+  roles:
+    - ava.jenkins
+

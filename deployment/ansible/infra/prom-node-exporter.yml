@@ -1,0 +1,6 @@
+- name: Install Prometheus Node Exporter on stand-alone nodes
+  become: true
+  hosts: standalone_servers
+  roles:
+    - ava.nodeexporter
+

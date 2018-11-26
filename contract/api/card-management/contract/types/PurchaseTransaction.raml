@@ -1,0 +1,10 @@
+#%RAML 1.0 DataType
+
+type: !include Transaction.raml
+description: Country-level geoblock configuration
+properties:
+  countryCode:
+    description: |
+      ISO code of the country where the card is going to be used.
+    type: string
+    required: true

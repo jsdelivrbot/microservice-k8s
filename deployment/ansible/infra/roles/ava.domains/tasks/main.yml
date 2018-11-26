@@ -1,0 +1,6 @@
+---
+- name: Copy resolv.conf to limit ndots (number of searchdomains)
+  copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    

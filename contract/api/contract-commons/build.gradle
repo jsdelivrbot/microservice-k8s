@@ -1,0 +1,29 @@
+group 'com.epam.contract.api'
+version '1.0.0-SNAPSHOT'
+
+buildscript {
+	repositories.addAll(extRepos)
+
+    ext {
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+        commonVersion = '2.0.0-SNAPSHOT'
+    }
+
+    dependencies {
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+    }
+}
+
+apply plugin: 'external_script'
+
+ext {
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+apply plugin: 'java'
+
+apply from: "$commonScriptLocation/deploy.gradle"
+
+sourceSets.main.resources {
+    srcDirs = [ "contract", "notice" ]
+}

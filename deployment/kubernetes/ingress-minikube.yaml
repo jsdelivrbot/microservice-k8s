@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-minikube
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /alfa-service
+        backend:
+          serviceName: alfa-service
+          servicePort: 80
+      - path: /beta-service
+        backend:
+          serviceName: beta-service
+          servicePort: 80

@@ -1,0 +1,29 @@
+ext {
+    serviceName = "${rootProject.name}"
+
+    contractDir = "$buildDir/contract"
+    contractSourceDir = "${rootProject.projectDir}/contract"
+
+    swaggerTemplateDir = "$buildDir/swagger-template"
+
+    swaggerJsonFile = "$contractDir/${project.name}.json"
+
+    oasGeneratorTemplateVersion = '1.0.0-SNAPSHOT'
+    generateResponseEntity = true
+    generateAsync = false
+
+    billOfMaterialsVersion = '1.0.0-SNAPSHOT'
+}
+
+apply from: "${commonScriptLocation}/bill-of-materials.gradle"
+apply from: "${commonScriptLocation}/deploy.gradle"
+
+apply plugin:'java'
+apply plugin:'maven-publish'
+
+group 'com.epam.contract.event'
+
+dependencies {
+    // Lombok
+    compile "org.projectlombok:lombok"
+}

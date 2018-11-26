@@ -1,0 +1,7 @@
+---
+# Install and configre Nginx Proxy
+- name: Install and configure nginx proxy for GitLab-Jenkins webhooks
+  hosts: nginx
+  become: true
+  roles:
+    - ava.nginx

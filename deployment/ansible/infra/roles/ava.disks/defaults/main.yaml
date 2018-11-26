@@ -1,0 +1,5 @@
+---
+volume_group: vgcontainers
+logical_volume: lvdocker
+mount_path: /var/lib/docker
+blk_devices: /dev/sdb

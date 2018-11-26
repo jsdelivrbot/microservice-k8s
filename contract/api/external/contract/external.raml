@@ -1,0 +1,264 @@
+#%RAML 1.0
+title: External API
+version: 1.2.0
+
+#mediaType: [ application/x-protobuf, application/json ]
+mediaType: [ application/x-protobuf ]
+
+description: |
+  This API covers the following supported areas:
+  - Document repository API
+  - Account management API
+  - Client Management API
+  - Security Management API
+  - Card Issuer service API
+
+annotationTypes: !include external/annotations/OasAnnotation.raml
+
+(oas-tags-definition):
+  - name: account
+    description: Account Service Endpoints
+  - name: card-issuer
+    description: Card Issuer Service Endpoints
+  - name: client-management
+    description: Client Management Service Endpoints
+  - name: document-repository
+    description: Document Repository Service Endpoints
+  - name: security-management
+    description: Security Management Service Endpoints
+
+
+types:
+  Account: !include types/Account.raml
+  AccountType: !include types/AccountType.raml
+  BooleanResponse: !include types/BooleanResponse.raml
+  CardCreationRequest: !include types/CardCreationRequest.raml
+  CardDetails: !include types/CardDetails.raml
+  CardType: !include types/CardType.raml
+  CardProduct: !include types/CardProduct.raml
+  ClientData: !include types/ClientData.raml
+  ContractDetails: !include types/ContractDetails.raml
+  DocumentLink: !include types/DocumentLink.raml
+  OfferDocumentLink: !include types/OfferDocumentLink.raml
+  Statement: !include types/Statement.raml
+  CardType: !include types/CardType.raml
+  TestAccount: !include types/TestAccount.raml
+  TestClientData: !include types/TestClientData.raml
+  TestCardDetails: !include types/TestCardDetails.raml
+  TestData: !include types/TestData.raml
+  VerificationType: !include types/VerificationType.raml
+
+/document-repository:
+  /card-offers:
+    get:
+      (oas-tags):
+        - document-repository
+      displayName: getCardOffers
+      description:  Retrieves the card offer document links for the given card type.
+      queryParameters:
+        card_type:
+          type: CardType
+          required: true
+      responses:
+        200:
+          description:
+          body:
+            application/x-protobuf:
+              description: Document links for the card offers
+              type: OfferDocumentLink[]
+
+    /{offerId}/terms:
+      get:
+        (oas-tags):
+          - document-repository
+        displayName: getCardTermsDocument
+        description: Retrieves the terms and conditions document link associated with the given offer.
+        responses:
+          200:
+            body:
+              application/x-protobuf:
+                description: The terms and conditions
+                type: OfferDocumentLink
+
+  /contracts:
+    post:
+      (oas-tags):
+        - document-repository
+      displayName: storeContract
+      description: Retrieves the terms and conditions documents associated with the given offer.
+      queryParameters:
+        client_id:
+          type: string
+          required: true
+        offer_id:
+          description:
+          type: string
+          required: true
+      body:
+        application/x-protobuf:
+          type: ContractDetails
+      responses:
+        202:
+          description:
+          body:
+            application/x-protobuf:
+              type: DocumentLink
+
+/accounts:
+  get:
+    (oas-tags):
+      - account
+    displayName: getAccounts
+    queryParameters:
+      client_id:
+        type: string
+        required: true
+    responses:
+      200:
+        description:
+        body:
+          application/x-protobuf:
+            description: Accounts of the client
+            type: Account[]
+  /{accountId}:
+    get:
+      (oas-tags):
+        - account
+      displayName: getAccount
+      queryParameters:
+        client_id:
+          type: string
+          required: true
+      responses:
+        200:
+          description:
+          body:
+            application/x-protobuf:
+              type: Account
+  /verify-eligibility:
+    get:
+      (oas-tags):
+        - account
+      displayName: verifyEligibility
+      description: verify-eligibility
+      queryParameters:
+        client_id:
+          type: string
+          required: true
+        account_id:
+          description:
+          type: string
+          required: true
+        card_type:
+          description: Card type.
+          type: CardType
+          required: true
+      responses:
+        200:
+          description:
+          body:
+            application/x-protobuf:
+              type: BooleanResponse
+
+/clients/{clientId}:
+  get:
+    (oas-tags):
+      - client-management
+    displayName: getClientData
+    responses:
+      200:
+        description:
+        body:
+          application/x-protobuf:
+            type: ClientData
+
+/security-verification:
+  post:
+    (oas-tags):
+      - security-management
+    displayName: verifyClient
+    description:
+    queryParameters:
+      verification_type:
+        required: true
+        type: VerificationType
+    body:
+      application/x-protobuf:
+        type: ClientData
+    responses:
+      200:
+        body:
+          application/x-protobuf:
+            type: BooleanResponse
+
+/card-issuer:
+  get:
+    (oas-tags):
+      - card-issuer
+    displayName: getStatements
+    description: The statements of the user's card accounts.
+    queryParameters:
+      client_id:
+        type: string
+        required: true
+      card_id:
+        description: filter the result to the given card.
+        type: string
+        required: false
+      period:
+        description: The statement period (year + month).
+        type: string
+        required: false
+        example: '2018-03'
+        pattern: \d{4}-\d{2}
+    responses:
+      200:
+        description: |
+          The list of the statements.
+        body:
+          application/x-protobuf:
+            type: Statement[]
+  post:
+    (oas-tags):
+      - card-issuer
+    displayName: createCard
+    description: Returns the data of the newly created card
+    queryParameters:
+      client_id:
+        type: string
+        required: true
+    body:
+      application/x-protobuf:
+        type: CardCreationRequest
+    responses:
+      200:
+        description: |
+          Details of the created card.
+        body:
+          application/x-protobuf:
+            type: CardDetails
+
+/test-data:
+  post:
+    (oas-tags):
+      - test-data
+    displayName: addTestData
+    description: Endpoint for instrumenting external mock
+    body:
+      application/json:
+        type: TestData
+    responses:
+      200:
+        body:
+          application/x-protobuf:
+            type: BooleanResponse
+  delete:
+    (oas-tags):
+          - test-data
+    displayName: resetTestData
+    description: Endpoint for reseting external mock to initial state
+    responses:
+      200:
+        body:
+          application/x-protobuf:
+            type: BooleanResponse

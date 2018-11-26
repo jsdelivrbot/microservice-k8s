@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+
+description: Details of a particular contract
+properties:
+  accountId:
+    type: string
+    required: true
+  clientId:
+    type: string
+    required: true
+  offer:
+    description: The digitally signed offer.
+    type: CardOfferSigned
+  cardId:
+    description: The ID of the card this contract is associated with.
+    type: string
+    required: true
+  conditions:
+    type: string
+    required: true
+    example: visaconditions.pdf
+  eActivation:
+    description: Flag that indicates whether the electronical activation is supported or not
+    type: boolean
+  contactInfo:
+    description: Client related data
+    type: array
+    items: ContactInfo

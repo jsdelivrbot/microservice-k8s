@@ -1,0 +1,438 @@
+# Default values for jenkins.
+# This is a YAML-formatted file.
+# Declare name/value pairs to be passed into your templates.
+# name: value
+
+## Overrides for generated resource names
+# See templates/_helpers.tpl
+# nameOverride:
+# fullnameOverride:
+
+Master:
+  Name: jenkins-master
+  Image: "jenkins/jenkins"
+  ImageTag: "lts"
+  ImagePullPolicy: "Always"
+# ImagePullSecret: jenkins
+  Component: "jenkins-master"
+  UseSecurity: true
+  AdminUser: admin
+  AdminPassword: "Zj2rHbvyHY"
+  Cpu: "500m"
+  Memory: "768Mi"
+  # Environment variables that get added to the init container (useful for e.g. http_proxy)
+  # InitContainerEnv:
+  #   - name: http_proxy
+  #     value: "http://192.168.64.1:3128"
+  ContainerEnv:
+    - name: JENKINS_GIT_NAME
+      value: jenkins
+    - name: JENKINS_GIT_EMAIL
+      value: auto_ava-api_technical@epam.com
+    - name: ELASTICSEARCH_URL
+      value: http://ecsb00101a05.epam.com:9200/logstash-jenkins-pod-builds/logs
+
+  #   - name: http_proxy
+  #     value: "http://192.168.64.1:3128"
+  # Set min/max heap here if needed with:
+  JavaOpts: "-Xms512m -Xmx512m -Dpermissive-script-security.enabled=true "
+  # JenkinsOpts: ""
+  # JenkinsUriPrefix: "/jenkins"
+  # Set RunAsUser to 1000 to let Jenkins run as non-root user 'jenkins' which exists in 'jenkins/jenkins' docker image.
+  # When setting RunAsUser to a different value than 0 also set FsGroup to the same value:
+  RunAsUser: 1000
+  FsGroup: 1000
+  ServicePort: 8080
+  # For minikube, set this to NodePort, elsewhere use LoadBalancer
+  # Use ClusterIP if your setup includes ingress controller
+  ServiceType: ClusterIP
+  # Master Service annotations
+  ServiceAnnotations: {}
+  #   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+  # Used to create Ingress record (should used with ServiceType: ClusterIP)
+  HostName: jenkins.10.253.129.19.nip.io
+  # NodePort: <to set explicitly, choose port between 30000-32767
+  ContainerPort: 8080
+  # Enable Kubernetes Liveness and Readiness Probes
+  HealthProbes: true
+  HealthProbesTimeout: 30
+  SlaveListenerPort: 50000
+  # Kubernetes service type for the JNLP slave service
+  # SETTING THIS TO "LoadBalancer" IS A HUGE SECURITY RISK: https://github.com/kubernetes/charts/issues/1341
+  SlaveListenerServiceType: ClusterIP
+  SlaveListenerServiceAnnotations: {}
+  LoadBalancerSourceRanges:
+  - 0.0.0.0/0
+  # Optionally assign a known public LB IP
+  # LoadBalancerIP: 1.2.3.4
+  # Optionally configure a JMX port
+  # requires additional JavaOpts, ie
+  # JavaOpts: >
+  #   -Dcom.sun.management.jmxremote.port=4000
+  #   -Dcom.sun.management.jmxremote.authenticate=false
+  #   -Dcom.sun.management.jmxremote.ssl=false
+  # JMXPort: 4000
+  # List of plugins to be install during Jenkins master start
+  InstallPlugins:
+     - kubernetes:latest
+     - workflow-aggregator:latest
+     - workflow-job:latest
+     - blueocean:latest
+     - artifactory:latest
+     - build-failure-analyzer:latest
+     - build-timeout:latest
+     - conditional-buildstep:latest
+     - config-file-provider:latest
+     - credentials:latest
+     - credentials-binding:latest
+     - display-url-api:latest
+     - gitlab-logo:latest
+     - gitlab-oauth:latest
+     - gitlab-plugin:latest
+     - htmlpublisher:latest
+     - jacoco:latest
+     - job-dsl:1.69
+     - junit:latest
+     - logstash:latest
+     - matrix-project:latest
+     - parameterized-trigger:latest
+     - prometheus:latest
+     - script-security:latest
+     - simple-theme-plugin:latest
+     - slack:latest
+
+  # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
+  # ScriptApproval:
+  #   - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+  #   - "new groovy.json.JsonSlurperClassic"
+  # List of groovy init scripts to be executed during Jenkins master start
+  InitScripts:
+   - |
+      println 'Adding global pipeline libraries, register properties, bootstrap jobs...'
+
+      import jenkins.*
+      import jenkins.model.*
+      import hudson.*
+      import hudson.model.*
+      import org.jenkinsci.plugins.workflow.libs.*
+      import jenkins.plugins.git.GitSCMSource
+      import com.dabsquared.gitlabjenkins.connection.*
+
+      import net.sf.json.JSONObject
+
+      // disable script security for jobdsl
+      import javaposse.jobdsl.plugin.GlobalJobDslSecurityConfiguration
+      import jenkins.model.GlobalConfiguration
+
+      println 'Script Approval disabled for Job DSL scripts to bootstrap jobs easily.'
+      // disable Job DSL script approval
+      GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).useScriptSecurity=false
+      GlobalConfiguration.all().get(GlobalJobDslSecurityConfiguration.class).save()
+
+
+      def slackParameters = [
+        slackBaseUrl:             'https://epam-ava-api.slack.com/services/hooks/jenkins-ci/',
+        slackBotUser:             'true',
+        slackBuildServerUrl:      'http://jenkins.10.253.129.19.nip.io',
+        slackRoom:                '#builds',
+        slackSendAs:              'Jenkins',
+        slackTeamDomain:          'epam-ava-api',
+        slackToken:               '',
+        slackTokenCredentialId:   'AVA-API-Slack-Jenkins-Token'
+      ]
+
+
+      println "Configure slack."
+      def j = Jenkins.getInstance()
+      // get Slack plugin
+      def slack = j.getExtensionList(jenkins.plugins.slack.SlackNotifier.DescriptorImpl.class)[0]
+
+      // define form and request
+      JSONObject formData = ['slack': ['tokenCredentialId': 'AVA-API-Slack-Jenkins-Token']] as JSONObject
+      def request = [getParameter: { name -> slackParameters[name] }] as org.kohsuke.stapler.StaplerRequest
+
+      // add Slack configuration to Jenkins
+      slack.configure(request, formData)
+      // save to disk
+      slack.save()
+
+      // fix slack plugin jenkins url
+      import jenkins.plugins.slack.webhook.GlobalConfig;
+      import jenkins.plugins.slack.webhook.WebhookEndpoint;
+      def splackConfig=Jenkins.getActiveInstance().getDescriptor(GlobalConfig.class);
+      def slackWebHook=Jenkins.getActiveInstance().getExtensionList(WebhookEndpoint.class).get(0);
+      println splackConfig
+      println slackWebHook
+      println slackWebHook.@globalConfig
+      slackWebHook.@globalConfig=splackConfig
+
+      //endof fix
+      println "Slack configured with AVA-API-Slack-Jenkins-Token credential."
+
+      def env = System.getenv()
+
+  
+      // Configure the global git tool
+      def git = { instance, name, email ->
+        assert instance
+        assert name
+        assert email
+        def descriptor = instance.getDescriptor("hudson.plugins.git.GitSCM")
+        descriptor.setGlobalConfigName(name)
+        descriptor.setGlobalConfigEmail(email)
+        descriptor.save()
+        println "Setting git name to ${name} <${email}>"
+      }
+      
+      // Configure global CSRF protection
+        def csrf = { instance, enable_csrf=true ->
+        instance.setCrumbIssuer(new hudson.security.csrf.DefaultCrumbIssuer(enable_csrf))
+        println 'Enabled CSRF Protection.'
+      }
+
+      // enable csrf protection
+      csrf(
+          instance    = j,
+          enable_csrf = true
+      )
+      
+      // configure git using env vars
+      git(
+        instance = j,
+        name  = env['JENKINS_GIT_NAME'],
+        email = env['JENKINS_GIT_EMAIL']
+      )
+
+      // configure global libraries
+      println "Configure global libraries."
+      GlobalLibraries descriptor = (GlobalLibraries) GlobalLibraries.get()
+      GitSCMSource scmSource = new GitSCMSource('e0810538-db63-4a73-aac9-bb9e79d97ee5',
+                                          'git@git.epam.com:ava-api/ava-api-pipelines.git',
+                                          'e0810538-db63-4a73-aac9-bb9e79d97ee5',
+                                          'origin',
+                                          '+refs/heads/*:refs/remotes/origin/*',
+                                          '*',
+                                          '',
+                                          false)
+
+      SCMSourceRetriever retriever = new SCMSourceRetriever(scmSource)
+      LibraryConfiguration libraryConfiguration = new LibraryConfiguration('AVA-API-Pipelines', retriever)
+      libraryConfiguration.setDefaultVersion('master')
+      libraryConfiguration.setImplicit(true)
+      libraryConfiguration.setAllowVersionOverride(true)
+
+      descriptor.getLibraries().add(libraryConfiguration)
+      descriptor.save()
+      println "Global libraries configured."
+
+
+
+      // Configure GitLab connection
+      println "Configure GitLab connection."
+      import com.dabsquared.gitlabjenkins.connection.*
+      import jenkins.model.Jenkins
+
+      GitLabConnectionConfig gitlabdescriptor = (GitLabConnectionConfig) Jenkins.getInstance().getDescriptor(GitLabConnectionConfig.class)
+
+      GitLabConnection gitLabConnection = new GitLabConnection('EpamGitLab',
+                                              'https://git.epam.com',
+                                              '717f8ab2-7990-41ce-948b-336446cdeb09',
+                                              false,
+                                              10,
+                                              10)
+      gitlabdescriptor.getConnections().clear()
+      gitlabdescriptor.addConnection(gitLabConnection)
+      gitlabdescriptor.save()
+      println "GitLab connection configured."
+
+
+      // Configure Logstash plugin
+      import jenkins.plugins.logstash.*
+      LogstashConfiguration logstashdescriptor = (LogstashConfiguration) Jenkins.getInstance().getDescriptor(LogstashConfiguration.class)
+      logstashdescriptor.setEnableGlobally(false)
+
+      indexer = new configuration.ElasticSearch();
+
+      elasticsearchUrl = env['ELASTICSEARCH_URL']
+      indexer.setUri(new URL(elasticsearchUrl));
+
+      logstashdescriptor.setLogstashIndexer(indexer)
+      logstashdescriptor.save()
+      println "Logstash configured."
+
+      // save Jenkins instance settings
+      instance.save()
+
+  # Kubernetes secret that contains a 'credentials.xml' for Jenkins
+  CredentialsXmlSecret: jenkins-credentials
+  # Kubernetes secret that contains files to be put in the Jenkins 'secrets' directory,
+  # useful to manage encryption keys used for credentials.xml for instance (such as
+  # master.key and hudson.util.Secret)
+  SecretsFilesSecret: jenkins-secrets
+  # Jenkins XML job configs to provision
+  Jobs: |-
+    seedjob: |-
+      <?xml version='1.1' encoding='UTF-8'?>
+      <flow-definition plugin="workflow-job@2.19">
+        <actions/>
+        <description></description>
+        <keepDependencies>false</keepDependencies>
+        <properties>
+          <com.sonyericsson.jenkins.plugins.bfa.model.ScannerJobProperty plugin="build-failure-analyzer@1.19.2">
+            <doNotScan>false</doNotScan>
+          </com.sonyericsson.jenkins.plugins.bfa.model.ScannerJobProperty>
+          <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty/>
+          <org.jenkinsci.plugins.workflow.job.properties.DisableResumeJobProperty/>
+          <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.5">
+            <gitLabConnection>EpamGitLab</gitLabConnection>
+          </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+          <org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty plugin="gitlab-logo@1.0.3">
+            <repositoryName>ava-api/ava-api-pipelines</repositoryName>
+          </org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty>
+          <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+              <hudson.model.StringParameterDefinition>
+                <name>gitlabSourceRepoName</name>
+                <description>Repo name, populated from GitLab webhook. Specify it for testing, release purposes.</description>
+                <defaultValue>ava-api-pipelines</defaultValue>
+                <trim>false</trim>
+              </hudson.model.StringParameterDefinition>
+              <hudson.model.StringParameterDefinition>
+                <name>gitlabSourceBranch</name>
+                <description>Branch, populated from GitLab webhook. Specify it for testing, release purposes.</description>
+                <defaultValue>master</defaultValue>
+                <trim>false</trim>
+              </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+          </hudson.model.ParametersDefinitionProperty>
+          <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+            <triggers>
+              <com.dabsquared.gitlabjenkins.GitLabPushTrigger plugin="gitlab-plugin@1.5.5">
+                <spec></spec>
+                <triggerOnPush>true</triggerOnPush>
+                <triggerOnMergeRequest>true</triggerOnMergeRequest>
+                <triggerOnPipelineEvent>false</triggerOnPipelineEvent>
+                <triggerOnAcceptedMergeRequest>false</triggerOnAcceptedMergeRequest>
+                <triggerOnClosedMergeRequest>false</triggerOnClosedMergeRequest>
+                <triggerOnApprovedMergeRequest>true</triggerOnApprovedMergeRequest>
+                <triggerOpenMergeRequestOnPush>source</triggerOpenMergeRequestOnPush>
+                <triggerOnNoteRequest>true</triggerOnNoteRequest>
+                <noteRegex>Jenkins please retry a build</noteRegex>
+                <ciSkip>true</ciSkip>
+                <skipWorkInProgressMergeRequest>true</skipWorkInProgressMergeRequest>
+                <setBuildDescription>true</setBuildDescription>
+                <branchFilterType>NameBasedFilter</branchFilterType>
+                <includeBranchesSpec>master</includeBranchesSpec>
+                <excludeBranchesSpec></excludeBranchesSpec>
+                <targetBranchRegex></targetBranchRegex>
+                <secretToken>{AQAAABAAAAAwM+XzlVCluorrfKFtmeCFWdmPVTXxH7pipELm+8WIpKoe8JIvgmaSF5/CpX/iB47gs0QG7Gyw6BNVWMSAftIWnQ==}</secretToken>
+              </com.dabsquared.gitlabjenkins.GitLabPushTrigger>
+            </triggers>
+          </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+        </properties>
+        <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.48">
+          <scm class="hudson.plugins.git.GitSCM" plugin="git@3.8.0">
+            <configVersion>2</configVersion>
+            <userRemoteConfigs>
+              <hudson.plugins.git.UserRemoteConfig>
+                <url>git@git.epam.com:ava-api/ava-api-pipelines.git</url>
+                <credentialsId>e0810538-db63-4a73-aac9-bb9e79d97ee5</credentialsId>
+              </hudson.plugins.git.UserRemoteConfig>
+            </userRemoteConfigs>
+            <branches>
+              <hudson.plugins.git.BranchSpec>
+                <name>*/${gitlabSourceBranch}</name>
+              </hudson.plugins.git.BranchSpec>
+            </branches>
+            <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+            <submoduleCfg class="list"/>
+            <extensions/>
+          </scm>
+          <scriptPath>Jenkinsfile</scriptPath>
+          <lightweight>false</lightweight>
+        </definition>
+        <triggers/>
+        <disabled>false</disabled>
+      </flow-definition>
+  CustomConfigMap: false
+  # Node labels and tolerations for pod assignment
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  NodeSelector: {}
+  Tolerations: {}
+
+  Ingress:
+    Annotations:
+    kubernetes.io/ingress.class: nginx
+
+    TLS:
+    - secretName: jenkins-tls
+      hosts:
+        - jenkins.10.253.129.19.nip.io
+
+Agent:
+  Enabled: true
+  Image: jenkins/jnlp-slave
+  ImageTag: 3.10-1
+# ImagePullSecret: jenkins
+  Component: "jenkins-slave"
+  Privileged: false
+  Cpu: "500m"
+  Memory: "512Mi"
+  # You may want to change this to true while testing a new image
+  AlwaysPullImage: false
+  # You can define the volumes that you want to mount for this container
+  # Allowed types are: ConfigMap, EmptyDir, HostPath, Nfs, Pod, Secret
+  # Configure the attributes as they appear in the corresponding Java class for that type
+  # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
+  volumes:
+  #  - type: EmptyDir
+  #    mountPath: /home/jenkins
+  #   mountPath: /var/myapp/mysecret
+  NodeSelector: {}
+  # Key Value selectors. Ex:
+  # jenkins-agent: v1
+
+
+Persistence:
+  Enabled: true
+  ## A manually managed Persistent Volume and Claim
+  ## Requires Persistence.Enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # ExistingClaim:
+
+  ## jenkins data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # StorageClass: "local-storage"
+
+  Annotations: {}
+  AccessMode: ReadWriteOnce
+  Size: 8Gi
+  volumes:
+  #  - name: nothing
+  #    emptyDir: {}
+  mounts:
+  #  - mountPath: /var/nothing
+  #    name: nothing
+  #    readOnly: true
+
+NetworkPolicy:
+  # Enable creation of NetworkPolicy resources.
+  Enabled: false
+  # For Kubernetes v1.4, v1.5 and v1.6, use 'extensions/v1beta1'
+  # For Kubernetes v1.7, use 'networking.k8s.io/v1'
+  ApiVersion: extensions/v1beta1
+
+## Install Default RBAC roles and bindings
+rbac:
+  install: true
+  serviceAccountName: jenkins
+  # RBAC api version (currently either v1beta1 or v1alpha1)
+  apiVersion: v1beta1
+  # Cluster role reference
+  roleRef: cluster-admin

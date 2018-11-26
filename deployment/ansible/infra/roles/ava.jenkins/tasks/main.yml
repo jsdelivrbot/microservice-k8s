@@ -1,0 +1,20 @@
+---
+# This role is created to configure and install the standalon Jenkins VM
+- name: Add Jenkins server Ubuntu repository
+  apt_repository:
+    repo: deb https://pkg.jenkins.io/debian-stable binary/
+    state: present
+    filename: 'jenkins.list'
+
+- name: Install jenkins-server package
+  apt: 
+    name: jenkins
+    state: latest
+    update_cache: yes
+
+- name: Enable and start jenkins server systemd service
+  systemd:
+    name: jenkins
+    state: started
+    enabled: true
+  

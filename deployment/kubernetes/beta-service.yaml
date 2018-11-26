@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: beta-service
+  labels:
+    run: beta-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: beta-service
+    spec:
+      containers:
+      - name: beta-service
+        image: avaloq/beta-service
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beta-service
+spec:
+  selector:
+    run: beta-service
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort

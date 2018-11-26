@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    serialization-inclusion: non_null
+    default-property-inclusion: non_null
+
+logging:
+  pattern:
+    console: "%date{ISO8601} [%thread] %level %logger - %msg%n"
+  level:
+    ROOT: INFO
+    com.epam: DEBUG
+management:
+  security:
+    enabled: false

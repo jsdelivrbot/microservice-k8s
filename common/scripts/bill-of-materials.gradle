@@ -1,0 +1,181 @@
+buildscript {
+    repositories.addAll(extRepos)
+
+    dependencies {
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
+    }
+}
+
+ext {
+    javaVersion = 'JavaVersion.VERSION_1_8'
+
+
+
+    postgreSqlVersion = '42.2.0'
+    hikariCPVersion = '2.7.6'
+    
+    hibernateVersion = '5.2.17.Final'
+
+    lombokVersion = '1.16.18'
+
+    //Generation
+    swaggerAnnotationsVersion = '1.5.19'
+    springfoxSwagger2Version = '2.8.0'
+    validationVersion = '1.1.0.Final'
+
+    commonsLang3Version = '3.6'
+    commonsIoVersion = '2.6'
+
+    apacheCommonsValidatorVersion = '1.6'
+
+    testngVersion = '6.14.3'
+    hamcrestVersion = '1.3'
+    mockitoVersion = '2.18.3'
+    restAssuredVersion = '3.1.0'
+    springMockMvcVersion = '3.1.0'
+    shazamcrestVersion = '0.11'
+    hamcrestJavaVersion = '2.0.0.0'
+    cucumberVersion = '2.4.0'
+
+    slf4jVersion = '1.7.25'
+    appacheLoggingVersion = '2.8.2'
+    log4jVersion = '1.2.17'
+    logbackVersion = '1.2.3'
+
+    guavaVersion = '23.2-jre'
+
+    checkstyleVersion = '8.0'
+    pmdVersion = '5.8.1'
+    findbugsVersion = '3.0.1'
+    findsecbugsVersion = '1.6.0'
+
+    sleuthZipkinVersion = '1.2.5.RELEASE'
+
+    serviceBaseVersion = '2.0.0-SNAPSHOT'
+
+
+    springBootBomVersion = '2.1.0.RELEASE'
+    springBootStarterVersion = springBootBomVersion
+    springDataJpaStarterVersion = springBootBomVersion
+
+    springCloudBomVersion = 'Finchley.RELEASE'
+    springCloudVersion = '2.0.2.RELEASE'
+    springCloudFeignVersion = '2.0.2.RELEASE'//'1.4.6.RELEASE'
+
+    springFrameworkBomVersion = '5.1.2.RELEASE'
+
+    springKafkaVersion = '2.2.0.RELEASE'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework:spring-framework-bom:$springFrameworkBomVersion"
+        mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootBomVersion"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudBomVersion"
+    }
+
+    dependencies {
+
+        // Spring boot starter
+        //dependency("org.springframework.boot:spring-boot-starter:$springBootVersion")
+        //dependency("org.springframework.boot:spring-boot-starter-freemarker:$springBootVersion")
+        //dependency("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
+        //compile "org.springframework.boot:spring-boot-starter-actuator"
+        //dependency("org.springframework.boot:spring-boot-devtools:$springBootVersion")
+        //dependency("org.springframework.boot:spring-boot-starter-cache:$springBootVersion")
+
+        // Web
+        //dependency("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+        //dependency("org.springframework.boot:spring-boot-starter-undertow:$springBootVersion")
+        //dependency("org.springframework:spring-webmvc")
+
+        // Spring Cloud
+        //dependency("org.springframework.cloud:spring-cloud-netflix-core:$springCloudVersion")
+        //dependency("org.springframework.cloud:spring-cloud-starter-eureka:$springCloudVersion")
+        dependency("org.springframework.cloud:spring-cloud-starter-config:$springCloudVersion")
+        dependency("org.springframework.cloud:spring-cloud-starter-openfeign:$springCloudFeignVersion")
+        dependency("org.springframework.cloud:spring-cloud-sleuth-zipkin:$sleuthZipkinVersion")
+        dependency("org.springframework.boot:spring-boot-starter-test:$springBootStarterVersion")
+
+        // Kafka
+        dependency("org.springframework.kafka:spring-kafka:$springKafkaVersion")
+
+        // Database
+        dependency("org.postgresql:postgresql:$postgreSqlVersion")
+        dependency("com.zaxxer:HikariCP:$hikariCPVersion")
+
+        // Spring Data
+        dependency("org.springframework.boot:spring-boot-starter-data-jpa:$springDataJpaStarterVersion")
+        dependency("org.hibernate:hibernate-core:$hibernateVersion")
+
+        // Apache Commons
+        dependency("commons-io:commons-io:$commonsIoVersion")
+        dependency("commons-collections:commons-collections:+")
+        dependency("org.apache.commons:commons-lang3:$commonsLang3Version")
+
+        // Swagger generation
+        dependency("io.swagger:swagger-annotations:$swaggerAnnotationsVersion")
+        dependency("io.springfox:springfox-swagger2:$springfoxSwagger2Version")
+        dependency("io.springfox:springfox-swagger-ui:$springfoxSwagger2Version")
+
+        dependency("javax.validation:validation-api:$validationVersion")
+
+        // Lombok
+        dependency("org.projectlombok:lombok:$lombokVersion")
+
+        // Cache
+        //dependency("net.sf.ehcache:ehcache-core:+")
+
+        //dependency("org.modelmapper:modelmapper:+")
+
+        // Logging
+        dependency("org.slf4j:slf4j-api:$slf4jVersion")
+        dependency("org.slf4j:log4j-over-slf4j:$slf4jVersion")
+        dependency("org.slf4j:jcl-over-slf4j:$slf4jVersion")
+        dependency("org.apache.logging.log4j:log4j-api:$appacheLoggingVersion")
+        dependency("log4j:log4j:$log4jVersion")
+
+        dependency("ch.qos.logback:logback-classic:$logbackVersion")
+        dependency("ch.qos.logback:logback-core:$logbackVersion")
+
+        dependency("com.epam:service-base:$serviceBaseVersion")
+
+        // Testing
+        dependency("org.testng:testng:$testngVersion")
+        dependency("org.mockito:mockito-core:$mockitoVersion")
+
+        dependency("commons-validator:commons-validator:$apacheCommonsValidatorVersion")
+
+        dependency("com.google.guava:guava:$guavaVersion")
+		//dependency("com.google.protobuf:protobuf-java:+")
+
+        dependency("org.hamcrest:hamcrest-all:$hamcrestVersion")
+        dependency("org.hamcrest:java-hamcrest:$hamcrestJavaVersion")
+        dependency("com.shazam:shazamcrest:$shazamcrestVersion")
+        dependency("io.rest-assured:spring-mock-mvc:$springMockMvcVersion")
+        dependency("io.rest-assured:json-path:$restAssuredVersion")
+
+        dependency("io.cucumber:cucumber-java:$cucumberVersion")
+        dependency("io.cucumber:cucumber-jvm:$cucumberVersion")
+        dependency("io.cucumber:cucumber-spring:$cucumberVersion")
+    }
+}
+
+configurations {
+
+    compile.exclude module: "spring-boot-starter-tomcat"
+    compile.exclude group: "org.apache.tomcat"
+
+    runtime {
+        extendsFrom compile
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-core'
+        exclude group: 'log4j', module: 'log4j'
+        exclude group: 'commons-logging'
+        // remove unused jars
+        exclude group: 'xml-apis'
+        exclude group: 'javax.enterprise'
+        exclude group: 'javax.xml.stream', module: 'stax-api'
+    }
+}

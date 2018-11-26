@@ -1,0 +1,157 @@
+@startuml
+
+skinparam sequence {
+	ArrowColor DarkBlue
+	LifeLineBorderColor Blue
+	ActorBorderColor #FF00FF
+	ParticipantBorderColor Blue
+	ArrowThickness 2
+}
+skinparam arrow {
+	FontColor DarkBlue
+	FontSize 14
+	FontStyle bold
+}
+
+actor Client #FF00FF
+boundary WebApp #7FDFFF
+participant "Card\nManagement API" as CardMgmt #99FF99
+participant "Document\nRepository" as Repo
+participant "Account\nManagement API" as AccountMgmt
+participant "Client\nManagement API" as CRM
+participant "Security Check API" as Security
+participant "Card Issuer Service" as Issuer
+participant "Card Network" as Network
+
+note right of Client
+Select Account
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>Get accounts
+activate Client #FF00FF
+activate WebApp #7FDFFF
+WebApp->AccountMgmt: Get accounts(ClientID)
+activate AccountMgmt
+WebApp<--AccountMgmt: Account[]
+deactivate AccountMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>List of accounts
+deactivate WebApp
+
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF><b>Select the account
+|||
+
+note right of Client
+Select Offer
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>Get card offers
+note over CardMgmt #FF7F3F
+GET /card-offers?AccountID
+end note
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=18><b>GetCardOffers(ClientID, AccountID)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>AccountMgmt:<font color=#7F0000 size=18><b>VerifyEligibility(ClientID, AccountID,\n<font color=#7F0000 size=18><b>"BacksDebitCard")
+activate AccountMgmt
+CardMgmt<--AccountMgmt:Eligible
+deactivate AccountMgmt
+|||
+CardMgmt-[#7F0000]>Repo: <font color=#7F0000 size=18><b>GetCardOfferDetails("DebitCards")
+activate Repo
+CardMgmt<--Repo: OfferDocumentLinks[]
+deactivate Repo
+WebApp<--CardMgmt: CardOffer[]
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>List of card offers
+deactivate WebApp
+
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF><b>Select an Offer
+|||
+
+note right of Client
+See terms and conditions
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>See terms&conditions
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /card-offers/{OfferID}/conditions
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=18><b>GetTermsConditions(ClientID, OfferID)
+activate CardMgmt #00FF00
+CardMgmt->Repo: <font color=#7F0000 size=18><b>GetCardTermsDoc(offerID)
+activate Repo
+CardMgmt<--Repo: DocumentLink
+deactivate Repo
+WebApp<--CardMgmt: TermsAndConditions
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>Terms and Conditions
+deactivate WebApp
+...
+|||
+note right of Client
+Send application
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>Sign off contract(AccountID, OfferID)
+activate WebApp #7FDFFF
+WebApp->CRM: GetClientData(ClientID)
+activate CRM
+WebApp<--CRM: ClientData
+deactivate CRM
+note over CardMgmt #FF7F3F
+POST /contracts
+	body:
+		AccountID
+		OfferID
+		Address[]
+		isEActivation
+		SignedDocuments
+end note
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=18><b>Create debit card(ClientID, AccountID,\n<font color=#007F00 size=18><b>OfferID, ClientData)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>Security:<font color=#7F0000 size=18><b>VerifyClient(ClientData, "DebitCardApplication")
+activate Security
+note right of Security
+Eligibility,
+Suitability,
+Compliance,
+Anti-Money Laundering
+Fraud Detection
+end note
+CardMgmt<--Security:Allowed
+deactivate Security
+CardMgmt-[#7F0000]>Repo: <font color=#7F0000 size=18><b>StoreContract(clientID, OfferID)
+activate Repo
+CardMgmt<--Repo:DocumentID
+deactivate Repo
+CardMgmt-[#7F0000]>CardMgmt: <font color=#7F0000 size=18><b>GenerateApplicationID(ClientID, AccountID, OfferID)
+CardMgmt-[#7F0000]>Issuer: <font color=#7F0000 size=18><b>CreateCard(ApplicationID, CardType, ClientData)
+activate Issuer
+Issuer->Security:VerifyClient(ClientData, "OrderDebitCard")
+activate Security
+Issuer<--Security:Allowed
+deactivate Security
+Issuer->Network: CreateCard(CardType, ClientData)
+activate Network
+Issuer<--Network: Acknowledged(OrderID)
+deactivate Network
+Issuer->Issuer: BookOrder(ApplicationID, OrderID)
+CardMgmt<--Issuer: LastFourDigits
+deactivate Issuer
+||||
+note over CardMgmt #FF7F3F
+POST /cards
+	body:
+		CardID
+		AccountID
+		Address[]
+		isEActivation
+end note
+CardMgmt-[#007F00]>CardMgmt: <font color=#007F00 size=18><b>CreateCard(ClientID, LastFourDigits, Address[])
+WebApp<--CardMgmt: Acknowledged
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>Ordered
+deactivate WebApp
+|||
+deactivate Client
+|||
+@enduml 

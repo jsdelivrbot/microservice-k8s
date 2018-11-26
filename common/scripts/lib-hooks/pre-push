@@ -1,0 +1,28 @@
+#!/bin/bash
+echo pre-push hook running sonarqube, checking kafka-connector, kafka-event-base, service-base
+GRADLECOMMAND="./gradlew test sonarqube"
+TOBECHECKEDARRAY=(kafka-connector kafka-event-base service-base)
+TOBUILDARRAY=()
+for directory in `git diff --dirstat=files origin/master | cut -d "%" -f 2 | cut -d "/" -f 1 | uniq`; do
+	case "${TOBECHECKEDARRAY[@]}" in  *"$directory"*) 
+		TOBUILDARRAY+=($directory) ;;
+	esac
+done
+echo "Changes captured in the following libraries: ${TOBUILDARRAY[@]}"
+
+hookFile="$BASH_SOURCE"
+echo "Setting hook's read-only attribute."
+chmod -w $hookFile
+
+for libdir in "${TOBUILDARRAY[@]}"; do
+	echo Executing $GRADLECOMMAND in $libdir
+	cd $libdir
+	./gradlew test sonarqube
+	rc=$?
+	./gradlew --stop
+	if [[ $rc != 0 ]]; then break; fi
+	cd -
+done
+echo "Removing hook's read-only attribute."
+chmod +w $hookFile
+exit $rc

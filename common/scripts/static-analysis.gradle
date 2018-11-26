@@ -1,0 +1,94 @@
+ext {
+    checkstyleVersion = '8.7'
+    pmdVersion = '5.8.1'
+    findbugsVersion = '3.0.1'
+    findsecbugsVersion = '1.7.1'
+    fbcontribVersion = '7.0.2'
+
+    //commonScriptLocation = '../common/build'
+    checkstyleXmlVersion = '1.0.0-SNAPSHOT'
+    checkstyleSuppressionsXmlVersion = '1.0.0-SNAPSHOT'
+    pmdRulesetVersion = '1.0.0-SNAPSHOT'
+
+    staticRulesDestination = "build/static-analysis"
+}
+
+task downloadConfig(type: Copy) {
+    from "${commonScriptLocation}/checkstyle-${checkstyleXmlVersion}.xml"
+    from "${commonScriptLocation}/checkstyle-suppressions-${checkstyleSuppressionsXmlVersion}.xml"
+    from "${commonScriptLocation}/pmd-ruleset-${pmdRulesetVersion}.xml"
+
+    into staticRulesDestination
+
+    println "Copied files to $staticRulesDestination"
+}
+
+allprojects {
+    afterEvaluate { project ->
+        def javaProject = project.plugins.hasPlugin('java')
+
+        if (javaProject && project.hasProperty('analyse')) {
+
+            sourceCompatibility = 1.8
+            targetCompatibility = 1.8
+            project.compileJava.options.fork = true
+
+            project.apply plugin: 'checkstyle'
+            project.apply plugin: 'pmd'
+            project.apply plugin: 'findbugs'
+
+            dependencies {
+
+                findbugs "com.google.code.findbugs:findbugs:$findbugsVersion"
+                findbugs configurations.findbugsPlugins.dependencies
+                findbugsPlugins "com.mebigfatguy.fb-contrib:fb-contrib:$fbcontribVersion"
+                findbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:$findsecbugsVersion"
+
+                pmd "net.sourceforge.pmd:pmd-core:$pmdVersion"
+                pmd "net.sourceforge.pmd:pmd-java:$pmdVersion"
+            }
+
+            // Findbugs
+            task findbugs(type: FindBugs) {
+                pluginClasspath = project.configurations.findbugsPlugins
+            }
+
+            tasks.withType(FindBugs) {
+                reports {
+                    xml.enabled = false
+                    html.enabled = true
+                }
+            }
+
+            findbugs.ignoreFailures = true
+            findbugsTest.enabled = false
+
+            // Checkstyle
+            tasks.withType(Checkstyle) {
+                dependsOn downloadConfig
+            }
+
+            checkstyle {
+                configFile = file("${staticRulesDestination}/checkstyle-${checkstyleXmlVersion}.xml")
+                configProperties = [ "suppressionFile" : file("${staticRulesDestination}/checkstyle-suppressions-${checkstyleXmlVersion}.xml") ]
+                toolVersion = "$checkstyleVersion"
+                ignoreFailures = true
+            }
+
+            checkstyleTest.enabled = true
+
+            // PMD
+            tasks.withType(Pmd) {
+                dependsOn downloadConfig
+            }
+
+            pmd {
+                ruleSetFiles = files("${staticRulesDestination}/pmd-ruleset-${pmdRulesetVersion}.xml")
+                toolVersion = "$pmdVersion"
+                ignoreFailures = true
+            }
+
+            pmdTest.enabled = false
+        }
+    }
+}

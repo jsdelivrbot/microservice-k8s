@@ -1,0 +1,21 @@
+#%RAML 1.0 DataType
+
+description: Account properties relevant for card management
+properties:
+  account:
+    type: CardAccount
+    required: true
+  card:
+    type: Card
+    required: true
+  openBalance:
+    type: Amount
+    required: true
+  closeBalance:
+    type: Amount
+    required: true
+  transaction:
+    type: array
+    items:
+      type: Transaction
+  

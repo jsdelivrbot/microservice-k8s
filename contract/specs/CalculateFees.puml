@@ -1,0 +1,63 @@
+@startuml
+skinparam sequence {
+ArrowThickness 2
+ArrowColor DarkBlue
+LifeLineBorderColor Blue
+ActorBorderColor Blue
+ParticipantBorderColor Blue
+}
+skinparam arrow {
+FontColor DarkBlue
+FontSize 14
+FontStyle bold
+}
+
+actor Client
+boundary WebApp
+
+participant "Card Management API" as CardMgmt #99FF99
+
+note over WebApp, CardMgmt
+Calculator for total amount aware fees
+
+The client uses this tool as an aid to decide
+which kind of card type s/he should apply for
+considering his/her card usage customs.
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF>Calculate variable fees
+activate Client #FF00FF
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00>CalculateVariableFees()
+activate CardMgmt #00FF00
+WebApp<--CardMgmt: UsageCalculatorParams[]
+deactivate CardMgmt
+Client<[#FF00FF]-WebApp: <font color=#FF00FF>Enter parameters
+deactivate WebApp
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF>Entering parameters
+|||
+note right of Client
+Parameters:
+- Planned monthly spending (min, max)
+- Planned monthly cash withdrawal (min, max)
+- Planned number of usages per month (min, max)
+- Planned percent of card number usages
+  during travel to foreign countries (min, max)
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF>Calculate fees (Parameters)
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00>CalculateFees(Parameters)
+activate CardMgmt #00FF00
+note right of CardMgmt
+The API calculates the arising fees by using the mins,
+and by using the maxs for each available card type, and
+returns with the list. The list is sorted from the most
+optimal card to the least.
+end note
+WebApp<--CardMgmt: CalculatedCardFees[]
+deactivate CardMgmt
+Client<[#FF00FF]-WebApp: <font color=#FF00FF>Calculated fees per card
+deactivate WebApp
+deactivate Client
+
+@enduml

@@ -1,0 +1,106 @@
+import java.util.stream.Collectors
+
+import static java.util.Objects.isNull
+import static java.util.Objects.nonNull
+import static java.util.stream.Collectors.joining
+
+File dependencyInfoFile = new File('dependency_information.txt')
+
+if (dependencyInfoFile.exists()) {
+    dependencyInfoFile.delete()
+    println "Deleted file $dependencyInfoFile.name"
+} else {
+    dependencyInfoFile.createNewFile()
+}
+
+allprojects {
+
+    task('dependencyInfo') {
+        group 'project info'
+
+        def customGroup = 'com.epam'
+
+        Set<String> customDependencySet = new HashSet<>()
+        Set<String> allDependencySet = new HashSet<>()
+
+        if (project.hasProperty('scriptExtension')) {
+            scriptExtension.getDependencies().each {
+                addDependency(it, customGroup, allDependencySet, customDependencySet)
+            }
+        }
+
+        buildscript.configurations.each {
+            it.allDependencies.each {
+                addDependency(it, customGroup, allDependencySet, customDependencySet)
+            }
+        }
+
+        project.configurations.each {
+            it.allDependencies.each {
+                addDependency(it, customGroup, allDependencySet, customDependencySet)
+            }
+        }
+
+        if (dependencyInfoFile.exists()) {
+            dependencyInfoFile.withReader('UTF-8') {
+                String line
+                while (line = it.readLine()) {
+                    customDependencySet.add("$line")
+                }
+            }
+        }
+
+        String customDependencyText = customDependencySet.stream()
+                .sorted(this.&compareDependencyString)
+                .collect(Collectors.joining("\n"))
+
+
+        dependencyInfoFile.withWriter('UTF-8') {
+            it.write(customDependencyText)
+        }
+
+        println "Dependency information has been written to $dependencyInfoFile.absolutePath"
+
+        doLast {
+            println "======================================Dependency information"
+            println "Custom dependencies (${project.name}): "
+            println "-------------------"
+
+            println customDependencyText
+
+            println "\nExternal dependencies (${project.name}): "
+            println "-----------------------"
+            println allDependencySet.stream()
+                    .sorted(this.&compareDependencyString)
+                    .collect(joining("\n"))
+            println "=============================================================\n"
+        }
+    }
+}
+
+private void addDependency(dep, customGroup, allDependencySet, customDependencySet) {
+    def dependencyGroup = dep.group
+    def dependencyName = dep.name
+    def dependencyVersion = dep.version
+
+    // This is necessary if used with gradle plugins or projects with self resolving dependencies
+    if (nonNull(dependencyGroup)) {
+
+        // With the spring gradle dependency management plugin there could be dependencies without explicit versions
+        if (isNull(dependencyVersion)) {
+            dependencyVersion = dependencyManagement.managedVersions["$dependencyGroup:$dependencyName"]
+        }
+
+        def dependencyDefinitionString = "$dependencyGroup:$dependencyName:$dependencyVersion"
+
+        if (dependencyGroup.contains(customGroup)) {
+            customDependencySet.add(dependencyDefinitionString)
+        } else {
+            allDependencySet.add(dependencyDefinitionString)
+        }
+    }
+}
+
+private int compareDependencyString(String item1, String item2) {
+    item1.replaceAll("[.:-]", "").compareToIgnoreCase(item2.replaceAll("[.:-]", ""))
+}

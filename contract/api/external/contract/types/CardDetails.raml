@@ -1,0 +1,14 @@
+#%RAML 1.0 DataType
+
+properties:
+  serialNumber:
+    type: string
+  expiryYear:
+    type: string
+    pattern: \d{4}
+  expiryMonth:
+    type: string
+    pattern: \d{2}
+  lastFourDigits:
+    type: string
+    pattern: \d{4}

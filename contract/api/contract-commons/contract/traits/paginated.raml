@@ -1,0 +1,11 @@
+#%RAML 1.0 Trait
+
+queryParameters:
+  offset:
+    description: Offset of the first returned <<resourcePathName|!singularize>> item.
+    type: integer
+    required: false
+  limit:
+    description: Maximum number of <<resourcePathName|!singularize>> items to return.
+    type: integer
+    required: false

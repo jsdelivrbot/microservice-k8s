@@ -1,0 +1,14 @@
+#%RAML 1.0 Trait
+
+queryParameters:
+  sort:
+    description: |
+      Sort the list of <<resourcePathName|!singularize>>
+      by <<fieldList>>. Sorting is ascending by default,
+      prefix the field name with hyphen '-' to sort that
+      field descending. Any combination of the fields is
+      allowed. The field names are separated by comma ",",
+      and the order is important; second field plays only
+      if the value of the first field equals, and so on.
+    type: string
+    required: false

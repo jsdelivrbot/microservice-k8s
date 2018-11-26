@@ -1,0 +1,23 @@
+#%RAML 1.0 DataType
+
+description: Card offers available for a given account
+properties:
+  offerId:
+    description: The unique ID of the offer
+    type: string
+    required: true
+  cardType:
+    description: The type of the card
+    type: CardType
+    required: true
+  cardProduct:
+    description: The card product
+    type: CardProduct
+    required: true
+  conditionId:
+    description: The ID of the terms and conditions relevant to this offer
+    type: DocumentLink
+    required: true
+  cardFees:
+    description: The monthly and yearly fees associated with the card
+    type: CardFee

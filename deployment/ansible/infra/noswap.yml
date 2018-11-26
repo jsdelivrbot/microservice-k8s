@@ -1,0 +1,5 @@
+- name: Eliminate swap on k8s nodes
+  hosts: kube-node
+  become: true
+  roles:
+     - { role: ava.noswap }

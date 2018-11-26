@@ -1,0 +1,25 @@
+buildscript {
+    repositories.addAll(extRepos)
+
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1"
+    }
+}
+
+apply plugin: org.sonarqube.gradle.SonarQubePlugin
+
+sonarqube {
+    properties {
+        property "sonar.projectName", "${project.name}"
+        property "sonar.projectKey", "${project.name}"
+        property "sonar.host.url", "http://sonar.10.253.129.19.nip.io"
+        property "sonar.login", "2a351c857e767f469273e44a1814bff242e6baec"
+        property "sonar.jacoco.reportPath", "build/jacoco/testUnit.exec"
+        property "sonar.jacoco.itReportPath", "build/jacoco/testComponent.exec"
+    }
+}
+
+//might be needed later to decouple sonar reporting from test execution
+//tasks['sonarqube'].with {
+//    dependsOn.clear()
+//}

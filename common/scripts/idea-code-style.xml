@@ -1,0 +1,7 @@
+<code_scheme name="cort-IDEA-code-style">
+  <option name="USE_FQ_CLASS_NAMES" value="true" />
+  <option name="INSERT_INNER_CLASS_IMPORTS" value="true" />
+  <codeStyleSettings language="JAVA">
+    <option name="BLANK_LINES_AFTER_IMPORTS" value="10" />
+  </codeStyleSettings>
+</code_scheme>

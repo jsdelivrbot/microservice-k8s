@@ -1,0 +1,23 @@
+buildscript {
+	repositories.addAll(extRepos)
+
+	ext {
+		externalScriptPluginVersion = '1.0.1-SNAPSHOT'
+	}
+
+	dependencies {
+		classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
+		classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE'
+		classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+	}
+}
+
+apply plugin: 'external_script'
+
+ext {
+	commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:ava-api-common:1.0.0-SNAPSHOT")
+}
+
+apply from: "${commonScriptLocation}/common-event-contract.gradle"
+
+version '1.0.0-SNAPSHOT'

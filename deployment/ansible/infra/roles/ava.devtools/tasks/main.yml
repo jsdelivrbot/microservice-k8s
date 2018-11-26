@@ -1,0 +1,7 @@
+---
+# tasks file for devtools
+- name: Install default development packages
+  package:
+    name: "{{ devtools_packages }}"
+    state: present
+    

@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zipkin
+  labels:
+    run: zipkin
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: zipkin
+    spec:
+      containers:
+      - name: zipkin
+        image: openzipkin/zipkin
+        ports:
+        - containerPort: 9411
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin
+spec:
+  selector:
+    run: zipkin
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 9411
+      targetPort: 9411
+  type: NodePort

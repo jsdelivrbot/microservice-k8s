@@ -1,0 +1,142 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+   http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="1-create-card-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create CARD table</comment>
+
+        <createTable tableName="card">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="main_account" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="account_id" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="owner_id" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="client_id" type="varchar(10)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="last_four_digits" type="varchar(4)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="serial_number" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="card_status" type="varchar(15)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="expiry_year" type="int">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="expiry_month" type="int">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="e_activation" type="boolean">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2-create-country-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create COUNTRY table</comment>
+
+        <createTable tableName="country">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="display_name" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="iso" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="region_code" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="blocked_by_default" type="boolean"></column>
+            <column name="customizable" type="boolean">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3-create-region-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create REGION table</comment>
+
+        <createTable tableName="region">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="code" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="display_name" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="blocked_by_default" type="boolean">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="customizable" type="boolean">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="4-create-card-country-status-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create CARD_COUNTRY_STATUS table</comment>
+
+        <createTable tableName="card_country_status">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="card_id" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="country_iso" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="blocked" type="boolean">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="expiration_date" type="date">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5-create-card-region-status-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create CARD_REGION_STATUS table</comment>
+
+        <createTable tableName="card_region_status">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="card_id" type="varchar(255)">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="region_code" type="varchar(255) ">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="blocked" type="boolean">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="expiration_date" type="date">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

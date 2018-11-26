@@ -1,0 +1,419 @@
+buildscript {
+    repositories.addAll(extRepos)
+
+    ext {
+        apacheLang3Version = '3.7'
+
+        //ramlOasConverterVersion = '1.0.0-SNAPSHOT'
+
+        swaggerCodegenVersion = '2.3.1'
+        //swaggerCodegenVersion = '3.0.0-rc2'
+        //swaggerCodegenVersion = 'swagger-codegen-3.0.0-20180710.190509-87'
+        oasGeneratorTemplateVersion = '1.0.0-SNAPSHOT'
+
+        //protobufPluginVersion = '0.8.7'
+        //protoCompilerVersion = '3.6.1'
+        //protobufJavaVersion = '3.6.1'
+        //protobufJavaFormatVersion = '1.4'
+    }
+
+    dependencies {
+        classpath "io.swagger:swagger-codegen:$swaggerCodegenVersion"
+        //classpath "com.epam.oas:raml-oas-converter-gradle-plugin:$ramlOasConverterVersion"
+        classpath "org.apache.commons:commons-lang3:$apacheLang3Version"
+        classpath "com.epam.oas:oas-generator-template:$oasGeneratorTemplateVersion"
+        //classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufPluginVersion"
+    }
+}
+
+ext {
+    serviceName = "${rootProject.name}"
+
+    clientProjectName = serviceName + '-java-client-feign'
+    serverProjectName = serviceName + '-java-server-spring'
+    //protoClientProjectName = serviceName + '-java-client-proto-feign'
+    //protoServerProjectName = serviceName + '-java-server-proto-spring'
+
+    //contractDir = "$buildDir/contract"
+    contractSourceDir = "${rootProject.projectDir}/contract"
+
+    swaggerTemplateDir = "$buildDir/swagger-template"
+
+    //swaggerJsonFile = "$contractDir/${project.name}.json"
+    swaggerJsonFile = "$contractSourceDir/${project.name}.json"
+
+    generateResponseEntity = true
+    generateAsync = false
+}
+
+//apply plugin: com.epam.swagger.RamlOasConverterPlugin
+apply from: "${commonScriptLocation}/bill-of-materials.gradle"
+
+/*raml_oas_converter_extension {
+    nodeJsPath = nodeJsLocation
+    converterPath = ramlOasconverterLocation
+    basePath = contractDir
+}*/
+
+task unzipTemplate(type: Copy) {
+    def zipFile = buildscript.configurations.classpath.files.find { it.name.contains("oas-generator-template") }
+    from zipTree(zipFile)
+    into "$swaggerTemplateDir"
+}
+
+/*task copyRamlContract(type: Copy) {
+    from contractSourceDir
+    into contractDir
+}*/
+
+//project.tasks.findByName('convertRamlToOas').dependsOn(':copyRamlContract')
+
+import io.swagger.codegen.DefaultGenerator
+import io.swagger.codegen.config.CodegenConfigurator
+
+subprojects {
+    apply from: "${commonScriptLocation}/bill-of-materials.gradle"
+    apply from: "${commonScriptLocation}/deploy.gradle"
+
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'project-report'
+
+    // Subproject/configuration limitation(?)
+    /*if (project.name.contains("proto")) {
+        apply plugin: 'com.google.protobuf'
+
+        ext {
+            protoGenerationOutput = "$rootProject.buildDir/proto-generated"
+        }
+
+        sourceSets {
+            main {
+                proto {
+                    srcDir "$rootProject.rootDir/proto"
+                }
+                java {
+                    srcDir protoGenerationOutput
+                }
+            }
+        }
+
+        protobuf {
+            protoc {
+                artifact = "com.google.protobuf:protoc:$protoCompilerVersion"
+            }
+            generatedFilesBaseDir = protoGenerationOutput
+        }
+    }*/
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    project.compileJava.options.fork = true
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+
+    group 'com.epam.contract.api.' + "${serviceName}"
+}
+
+// Spring feign client configuration
+def clientProjectConfiguration = {
+    ext {
+        swaggerFeignOutput = "$buildDir/swagger/$clientProjectName"
+        //swaggerFeignOutput = "$buildDir/$clientProjectName"
+        swaggerFeignOutputSrcDir = "$swaggerFeignOutput/src"
+    }
+
+    dependencies {
+        compile "org.springframework:spring-web"
+        compile "org.springframework.cloud:spring-cloud-netflix-core"
+        compile "org.springframework.boot:spring-boot-autoconfigure"
+        compile "org.springframework.cloud:spring-cloud-openfeign-core"
+        compile "io.github.openfeign:feign-core"
+        compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+        compile "io.swagger:swagger-annotations"
+        compile "javax.validation:validation-api"
+        compile "org.projectlombok:lombok"
+        compileOnly "org.springframework.security.oauth:spring-security-oauth2"
+        compileOnly "org.springframework.cloud:spring-cloud-security"
+        compile "org.springframework.boot:spring-boot-starter-undertow"
+    }
+
+    task generateClient {
+        doLast {
+            String apiGroup = "$project.group".replace("-", "_")
+
+            def config = new CodegenConfigurator()
+            config.setInputSpec("file:///" + "$swaggerJsonFile")
+            config.setOutputDir(swaggerFeignOutput)
+            config.setLang('io.swagger.codegen.languages.CustomSpringCodegen')
+            config.setTemplateDir("$swaggerTemplateDir/spring-server-template")
+            config.setAdditionalProperties([
+                    'apiPackage'             : apiGroup + '.client',
+                    'modelPackage'           : apiGroup + '.model',
+                    'library'                : 'spring-cloud',
+                    'dateLibrary'            : 'java8',
+                    'hideGenerationTimestamp': true,
+                    'useTags'                : true,
+                    'serviceName'            : serviceName,
+                    'singleContentTypes'     : false,
+                    'isDelegate'             : false
+            ])
+
+            new DefaultGenerator()
+                    .opts(config.toClientOptInput())
+                    .generate()
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDir "$swaggerFeignOutput/src/main/java"
+            }
+        }
+    }
+
+    //generateClient.dependsOn(':validateOasContract')
+    generateClient.dependsOn(':unzipTemplate')
+    compileJava.dependsOn('generateClient')
+}
+// Spring server configuration
+def serverProjectConfiguration = {
+    ext {
+        swaggerSpringOutput = "$buildDir/swagger/$serverProjectName"
+        //swaggerSpringOutput = "$buildDir/$serverProjectName"
+        swaggerSpringOutputSrcDir = "$swaggerSpringOutput/src"
+        apiGroup = "$project.group".replace("-", "_")
+        apiPackage = apiGroup + '.server'
+        infoPackage = apiGroup + '.info'
+        configPackage = apiGroup + '.config'
+    }
+
+    dependencies {
+        compile "javax.servlet:javax.servlet-api"
+        compile "org.springframework:spring-web"
+        compile "org.springframework:spring-webmvc"
+        compile "io.springfox:springfox-swagger2"
+        compile "io.springfox:springfox-swagger-ui"
+        compile "javax.validation:validation-api"
+        compile "org.projectlombok:lombok"
+        compile "commons-io:commons-io"
+        compileOnly "org.springframework.security.oauth:spring-security-oauth2"
+        compileOnly "org.springframework.cloud:spring-cloud-security"
+        compile "org.springframework.boot:spring-boot-starter-undertow"
+    }
+
+    task generateServer {
+        doLast {
+
+            def config = new CodegenConfigurator()
+            config.setInputSpec("file:///" + "$swaggerJsonFile")
+            config.setOutputDir(swaggerSpringOutput)
+            config.setLang('io.swagger.codegen.languages.CustomSpringCodegen')
+            config.setTemplateDir("$swaggerTemplateDir/spring-server-template")
+            config.setAdditionalProperties([
+                    'apiPackage'             : apiPackage,
+                    'modelPackage'           : apiGroup + '.model',
+                    'apiConfigPackage'       : configPackage,
+                    'infoPackage'            : infoPackage,
+                    'dateLibrary'            : 'java8',
+                    'hideGenerationTimestamp': true,
+                    'useTags'                : true,
+                    'delegatePattern'        : true,
+                    'responseEntity'         : generateResponseEntity,
+                    'async'                  : generateAsync
+            ])
+
+            new DefaultGenerator().opts(config.toClientOptInput()).generate()
+        }
+    }
+
+    task deleteNotLibraryRelatedDirs(type: Delete) {
+        delete "$swaggerSpringOutput/src/main/java/io", "$swaggerSpringOutput/src/main/resources"
+        followSymlinks = true
+    }
+
+    task addContractToResources {
+        doLast {
+            def contractFolder = new File("$swaggerSpringOutputSrcDir/main/resources/contract")
+            contractFolder.mkdirs()
+            GFileUtils.copyFile(new File("$swaggerJsonFile"), new File(contractFolder.absolutePath + java.io.File.separator + apiPackage + ".api.json"))
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs "$swaggerSpringOutput/src/main/java"
+            }
+            resources {
+                srcDirs "$swaggerSpringOutput/src/main/resources"
+            }
+        }
+    }
+
+    //generateServer.dependsOn(':validateOasContract')
+    generateServer.dependsOn(':unzipTemplate')
+    deleteNotLibraryRelatedDirs.dependsOn('generateServer')
+    addContractToResources.dependsOn('deleteNotLibraryRelatedDirs')
+    compileJava.dependsOn('addContractToResources')
+}
+// Proto spring client configuration
+/*def protoClientProjectConfiguration = {
+    ext {
+        swaggerFeignOutput = "$buildDir/swagger/$protoClientProjectName"
+        swaggerFeignOutputSrcDir = "$swaggerFeignOutput/src"
+    }
+
+    dependencies {
+        compile "org.springframework:spring-web"
+        compile "org.springframework.cloud:spring-cloud-netflix-core"
+        compile "org.springframework.boot:spring-boot-autoconfigure"
+        compile "io.github.openfeign:feign-core"
+        compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+        compile "io.swagger:swagger-annotations"
+        compile "javax.validation:validation-api"
+        compile "org.projectlombok:lombok"
+        compileOnly "org.springframework.security.oauth:spring-security-oauth2"
+        compileOnly "org.springframework.cloud:spring-cloud-security"
+        compile "org.springframework.boot:spring-boot-starter-undertow"
+        compile "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+        compile "com.googlecode.protobuf-java-format:protobuf-java-format:$protobufJavaFormatVersion"
+    }
+
+    task generateClient {
+        doLast {
+            String apiGroup = "$project.group".replace("-", "_")
+
+            def config = new CodegenConfigurator()
+            config.setInputSpec("file:///" + "$swaggerJsonFile")
+            config.setOutputDir(swaggerFeignOutput)
+            config.setLang('io.swagger.codegen.languages.ProtoSpringCodegen')
+            config.setTemplateDir("$swaggerTemplateDir/spring-proto-server-template")
+            config.setAdditionalProperties([
+                    'apiPackage'             : apiGroup + '.client',
+                    'modelPackage'           : apiGroup + '.model',
+                    'library'                : 'spring-cloud',
+                    'dateLibrary'            : 'java8',
+                    'hideGenerationTimestamp': true,
+                    'useTags'                : true,
+                    'serviceName'            : serviceName,
+                    'singleContentTypes'     : false,
+                    'isDelegate'             : false
+            ])
+
+            new DefaultGenerator()
+                    .opts(config.toClientOptInput())
+                    .generate()
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDir "$swaggerFeignOutput/src/main/java"
+            }
+        }
+    }
+
+    generateClient.dependsOn(':validateOasContract')
+    generateClient.dependsOn(':unzipTemplate')
+    compileJava.dependsOn('generateClient')
+}*/
+// Proto spring server configuration
+/*def protoServerProjectConfiguration = {
+    ext {
+        swaggerSpringOutput = "$buildDir/swagger/$protoServerProjectName"
+        swaggerSpringOutputSrcDir = "$swaggerSpringOutput/src"
+    }
+
+    dependencies {
+        compile "javax.servlet:javax.servlet-api"
+        compile "org.springframework:spring-web"
+        compile "org.springframework:spring-webmvc"
+        compile "io.springfox:springfox-swagger2"
+        compile "io.springfox:springfox-swagger-ui"
+        compile "javax.validation:validation-api"
+        compile "org.projectlombok:lombok"
+        compile "commons-io:commons-io"
+        compileOnly "org.springframework.security.oauth:spring-security-oauth2"
+        compileOnly "org.springframework.cloud:spring-cloud-security"
+        compile "org.springframework.boot:spring-boot-starter-undertow"
+        compile "com.google.protobuf:protobuf-java:$protobufJavaVersion"
+        compile "com.googlecode.protobuf-java-format:protobuf-java-format:$protobufJavaFormatVersion"
+    }
+
+    task generateServer {
+        doLast {
+            String apiGroup = "$project.group".replace("-", "_")
+            String infoPackage = apiGroup + '.info'
+            String configPackage = apiGroup + '.config'
+
+            def config = new CodegenConfigurator()
+            config.setInputSpec("file:///" + "$swaggerJsonFile")
+            config.setOutputDir(swaggerSpringOutput)
+            config.setLang('io.swagger.codegen.languages.ProtoSpringCodegen')
+            config.setTemplateDir("$swaggerTemplateDir/spring-proto-server-template")
+            config.setAdditionalProperties([
+                    'apiPackage'               : apiGroup + '.server',
+                    'modelPackage'             : apiGroup + '.model',
+                    'apiConfigPackage'         : configPackage,
+                    'infoPackage'              : infoPackage,
+                    'dateLibrary'              : 'java8',
+                    'hideGenerationTimestamp'  : true,
+                    'useTags'                  : true,
+                    'delegatePattern'          : true,
+                    'removeSpringBootTemplates': true,
+                    'responseEntity'           : generateResponseEntity,
+                    'async'                    : generateAsync
+            ])
+
+            new DefaultGenerator()
+                    .opts(config.toClientOptInput())
+                    .generate()
+        }
+    }
+
+    task addContractToResources {
+        doLast {
+            def contractFolder = new File("$swaggerSpringOutputSrcDir/main/resources/contract")
+            contractFolder.mkdirs()
+            GFileUtils.copyFile(new File("$swaggerJsonFile"), new File(contractFolder.absolutePath + java.io.File.separator + "api.json"))
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs "$swaggerSpringOutput/src/main/java"
+            }
+            resources {
+                srcDirs "$swaggerSpringOutput/src/main/resources"
+            }
+        }
+    }
+
+    generateServer.dependsOn(':validateOasContract')
+    generateServer.dependsOn(':unzipTemplate')
+    addContractToResources.dependsOn('generateServer')
+    compileJava.dependsOn('addContractToResources')
+}*/
+
+// Configures subproject if exists
+def configureSubProject(subProjectName, subProjectConfiguration) {
+    Project subProject = subprojects.find { "$it.name".equals("$subProjectName") }
+    if (subProject != null) {
+        println "Configuring: $subProjectName"
+        configure(subProject, subProjectConfiguration)
+    } else {
+        println "Subproject is not present: $subProjectName"
+    }
+}
+
+gradle.projectsEvaluated {
+    configureSubProject(clientProjectName, clientProjectConfiguration)
+    configureSubProject(serverProjectName, serverProjectConfiguration)
+    //configureSubProject(protoClientProjectName, protoClientProjectConfiguration)
+    //configureSubProject(protoServerProjectName, protoServerProjectConfiguration)
+}

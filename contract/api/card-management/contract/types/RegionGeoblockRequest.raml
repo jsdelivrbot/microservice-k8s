@@ -1,0 +1,12 @@
+#%RAML 1.0 DataType
+
+description: Model for creating a new region-level geoblock configuration
+properties:
+  regionCode:
+    description: Code of a region
+    type: string
+    required: true
+  expirationDate:
+    description: Expiration date of the blocking in the following format (YYYY-MM-DD).
+    type: date-only
+    required: false

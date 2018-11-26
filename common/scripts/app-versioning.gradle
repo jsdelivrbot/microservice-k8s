@@ -1,0 +1,1 @@
+println "The app_versioning.gradle common script is deprecated. Use the app-versioning gradle plugin instead."

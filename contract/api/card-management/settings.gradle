@@ -1,0 +1,11 @@
+def apiName = 'card-management'
+rootProject.name = apiName
+
+def javaClientName = apiName + '-java-client-feign'
+def javaServerName = apiName + '-java-server-spring'
+
+include javaClientName
+include javaServerName
+
+file(javaClientName).mkdirs()
+file(javaServerName).mkdirs()

@@ -1,0 +1,151 @@
+@startuml
+
+skinparam sequence {
+	ArrowColor DarkBlue
+	ArrowThickness 2
+	LifeLineBorderColor Blue
+	ActorBorderColor #FF00FF
+	ParticipantBorderColor Blue
+}
+skinparam arrow {
+	FontColor DarkBlue
+	FontSize 14
+	FontStyle bold
+}
+
+actor Client #FF00FF
+boundary WebApp #7FDFFF
+
+participant "Card Management API" as CardMgmt #99FF99
+participant "Account Management API" as AccountMgmt
+participant "Fund Transfer API" as Transfer
+participant "Document Repository" as Repo
+
+
+note right of Client
+Select Card
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF><b>Get cards
+activate Client #FF00FF
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards?active
+end note
+WebApp-[#00FF00]>CardMgmt: <font color=#007F00 size=18><b>GetCards(ClientID)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Card[]
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>List of cards
+deactivate WebApp
+
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF><b>Select card
+|||
+
+note right of Client
+See balance
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF><b>See balance(CardLastDigits)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/balances
+end note
+WebApp-[#00FF00]>CardMgmt: <font color=#007F00 size=18><b>See balance(ClientID, CardLastDigits)
+activate CardMgmt #99FF99
+CardMgmt->CardMgmt:<font color=#007F00 size=18><b>GetBackingAccount(ClientID, CardLastDigits)
+CardMgmt->AccountMgmt: <font color=#7F0000 size=18><b>SeeBalance(ClientID, AccountNumber)
+activate AccountMgmt
+CardMgmt<--AccountMgmt: Balance
+deactivate AccountMgmt
+WebApp<--CardMgmt:Balance
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>Balance
+deactivate WebApp
+
+|||
+note right of Client
+See statement
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF><b>Get statement(CardLastDigits, YearAndMonth)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/statements?year+month
+end note
+WebApp-[#00FF00]>CardMgmt:<font color=#007F00 size=18><b>GetStatement(ClientID, CardLastDigits, YearAndMonth)
+activate CardMgmt #99FF99
+CardMgmt->CardMgmt:<font color=#007F00 size=18><b>GetBackingAccount(ClientID, CardLastDigits)
+CardMgmt->Repo: <font color=#7F0000 size=18><b>GetStatement(ClientID, AccountNumber, YearAndMonth)
+activate Repo
+CardMgmt<--Repo: Statement
+deactivate Repo
+WebApp<--CardMgmt: Statement
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>Statement
+deactivate WebApp
+
+|||
+note right of Client
+See booked transactions
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF><b>Get transactions(CardLastDigits, StartDate, EndDate)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/transactions?booked
+end note
+WebApp-[#00FF00]>CardMgmt:<font color=#007F00 size=18><b>GetTransactions(ClientID, CardLastDigits, StartDate, EndDate)
+activate CardMgmt #99FF99
+CardMgmt->CardMgmt:<font color=#007F00 size=18><b>GetBackingAccount(ClientID, CardLastDigits)
+CardMgmt->Transfer: <font color=#7F0000 size=18><b>GetTransactions(ClientID, AccountNumber, StartDate, EndDate)
+activate Transfer
+CardMgmt<--Transfer: List of Transactions
+deactivate Transfer
+WebApp<--CardMgmt: List of Transactions
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>List of Transactions
+deactivate WebApp
+
+|||
+note right of Client
+See pending transactions
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF><b>Get pending transactions(CardLastDigits)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/transactions?pending
+end note
+WebApp-[#00FF00]>CardMgmt:<font color=#007F00 size=18><b>GetPendingTransactions(ClientID, CardLastDigits)
+activate CardMgmt #99FF99
+CardMgmt->CardMgmt:<font color=#007F00 size=18><b>GetBackingAccount(ClientID, CardLastDigits)
+CardMgmt->Transfer: <font color=#7F0000 size=18><b>GetPendingTransactions(ClientID, AccountNumber)
+activate Transfer
+CardMgmt<--Transfer: List of Pending Transactions
+deactivate Transfer
+WebApp<--CardMgmt: List of Pending Transactions
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>List of Pending Transactions
+deactivate WebApp
+
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF><b>Select transaction
+|||
+
+note right of Client
+See transaction details
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF><b>Get transaction details(CardLastDigits, transactionID)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/transactions/{transactionID}
+end note
+WebApp-[#00FF00]>CardMgmt:<font color=#007F00 size=18><b>GetTransactionDetails(ClientID, CardLastDigits, transactionID)
+activate CardMgmt #99FF99
+CardMgmt->Transfer: <font color=#7F0000 size=18><b>GetTransactionDetails(ClientID, transactionID)
+activate Transfer
+CardMgmt<--Transfer: Transaction Details
+deactivate Transfer
+WebApp<--CardMgmt: Transaction Details
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF><b>Transaction Details
+deactivate WebApp
+
+@enduml

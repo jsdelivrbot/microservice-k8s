@@ -1,0 +1,61 @@
+@startuml
+
+skinparam sequence {
+	ArrowColor DarkBlue
+	LifeLineBorderColor Blue
+	ActorBorderColor #FF00FF
+	ParticipantBorderColor Blue
+	ArrowThickness 2
+}
+skinparam arrow {
+	FontColor DarkBlue
+	FontSize 14
+	FontStyle bold
+}
+
+actor "Bank Employee" as Bank #FF00FF
+boundary WebApp #7FDFFF
+
+participant "Fund Transfer API" as Transfer
+participant "Account\nManagement API" as AccountMgmt
+participant "Card\nManagement API" as CardMgmt #99FF99
+participant "Security Check API" as Security
+participant "Card Issuer Service" as Issuer
+
+
+note right of Bank
+Unblocking the card
+end note
+Bank-[#FF00FF]>WebApp:<font color=#FF00FF> Unblock card (ClientID, LastFourDigits, BlockType)
+activate Bank #FF00FF
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=18><b>UnblockCard(ClientID, LastFourDigits, BlockType)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>Security: <font color=#7F0000 size=18>ApproveUnblock(ClientID,\n<font color=#7F0000 size=18>LastFourDigits, BlockType)
+activate Security
+CardMgmt<--Security: Approved
+deactivate Security
+|||
+CardMgmt-[#7F0000]>Issuer:  <font color=#7F0000 size=18>UnblockCard(ClientID, LastFourDigits, BlockType)
+activate Issuer
+Issuer->Security: CardUnblockEvent(ClientID, BlockType)
+activate Security
+Issuer<--Security: Acknowledged
+deactivate Security
+CardMgmt<--Issuer: Done
+deactivate Issuer
+CardMgmt-[#7F0000]>Transfer: <font color=#7F0000 size=18>ApplyUnblockFee(ClientID, AccountID,\n<font color=#7F0000 size=18>LastFourDigits, Amount)
+activate Transfer
+Transfer->AccountMgmt: LockAmount(AccountID, Amount)
+activate AccountMgmt
+Transfer<--AccountMgmt: Done
+deactivate AccountMgmt
+CardMgmt<--Transfer: Done
+deactivate Transfer
+WebApp<--CardMgmt: Done
+deactivate CardMgmt
+Bank<[#FF00FF]-WebApp: <font color=#FF00FF>Unblocked
+deactivate WebApp
+deactivate Bank
+
+@enduml

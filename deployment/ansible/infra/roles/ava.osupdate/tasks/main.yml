@@ -1,0 +1,10 @@
+---
+# tasks file for osupdate
+- include: centos.yml
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+- name: Inform user if OS is not supported and make a direct failure
+  fail:
+    msg: "Operating system packages will not be updated! Please updated them manually."
+  when: ansible_distribution != "CentOS"
+  

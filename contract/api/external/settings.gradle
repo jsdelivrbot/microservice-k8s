@@ -1,0 +1,15 @@
+def apiName = 'external'
+rootProject.name = apiName
+
+def subProjectList = []
+
+subProjectList += "$apiName-java-client-feign"
+subProjectList += "$apiName-java-server-spring"
+
+//subProjectList += "$apiName-java-clent-proto-feign"
+//subProjectList += "$apiName-java-server-proto-spring"
+
+subProjectList.each {
+    include it
+    file(it).mkdirs()
+}

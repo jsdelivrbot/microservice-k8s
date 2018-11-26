@@ -1,0 +1,22 @@
+#%RAML 1.0 AnnotationTypeDeclaration
+
+oas-tags-definition:
+  allowedTargets: API
+  type: array
+  items:
+    properties:
+      name: string
+      description?: string
+      externalDocs?:
+        properties:
+          url: string
+          description?: string
+oas-body-name:
+  type: string
+  allowedTargets: TypeDeclaration
+oas-summary:
+  type: string
+  allowedTargets: Method
+oas-tags:
+  type: 'string[]'
+  allowedTargets: Method

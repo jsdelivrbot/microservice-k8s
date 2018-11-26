@@ -1,0 +1,21 @@
+#%RAML 1.0 DataType
+
+description: Account properties relevant for card management
+type: !include Transaction.raml
+properties:
+  merchantSector:
+    type: string
+    required: false
+  transactionCountry:
+    type: string
+    required: false
+  transactionType:
+    enum:
+      - withdrawal
+      - deposit
+      - purchase
+      - revoke
+      - incomingTransfer
+      - outgoingTransfer
+      - fee
+    required: true

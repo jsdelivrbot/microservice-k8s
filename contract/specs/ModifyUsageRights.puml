@@ -1,0 +1,70 @@
+@startuml
+
+skinparam sequenceArrowThickness 2
+skinparam sequence {
+ArrowColor DarkBlue
+LifeLineBorderColor Blue
+ActorBorderColor Blue
+ParticipantBorderColor Blue
+}
+skinparam arrow {
+FontColor DarkBlue
+FontSize 14
+FontStyle bold
+}
+
+actor Client
+boundary WebApp
+participant "Card Management API" as CardMgmt #99FF99
+
+note right of Client
+Select active card
+end note
+Client->WebApp: Select Active Card
+activate Client
+activate WebApp
+note over CardMgmt #FF7F3F
+GET /cards?active
+end note
+WebApp-[#00FF00]>CardMgmt: <font color=#007F00 size=20><b>GetActiveCards(ClientID)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Cards[]
+deactivate CardMgmt
+Client<--WebApp: List of cards
+deactivate WebApp
+|||
+Client->Client: Select card
+|||
+note right of Client
+See and modify usage rights
+end note
+Client->WebApp:Get usage rights(CardLastDigits)
+activate WebApp
+note over CardMgmt #FF7F3F
+GET /cards/{cardID}/usage-rights
+end note
+WebApp-[#00FF00]>CardMgmt: <font color=#007F00 size=20><b>GetUsageRights(ClientID, CardLastDigits)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: CardUsageRights
+deactivate CardMgmt
+Client<--WebApp: Card's usage rights
+deactivate WebApp
+|||
+Client->Client: Modify usage rights
+|||
+Client->WebApp: Update usage rights (CardLastDigits, CardUsageRights)
+activate WebApp
+note over CardMgmt #FF7F3F
+POST /cards/{cardID}/usage-rights
+    body:
+        UsageRights
+end note
+WebApp-[#00FF00]>CardMgmt: <font color=#007F00 size=20><b>UpdateUsageRights(ClientID, CardLastDigits, CardUsageRights)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Success
+deactivate CardMgmt
+Client<--WebApp: Success
+deactivate WebApp
+deactivate Client
+|||
+@enduml

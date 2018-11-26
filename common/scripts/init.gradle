@@ -1,0 +1,39 @@
+/* Should go to: <home>/.gradle/init.d/ */
+
+allprojects {
+
+	ext.getEnvOrDefault = { envVariableName, defaultValue ->
+		def envVariable = System.getenv("$envVariableName")
+		return (envVariable) ? envVariable : defaultValue
+	}
+
+	ext {
+		println 'Setting global properties'
+
+		artifactory_user         =  getEnvOrDefault('ARTIFACTORY_USER',            '****@epam.com')
+		artifactory_password     =  getEnvOrDefault('ARTIFACTORY_PASSWORD',        '<encrypted password>')
+		artifactory_contextUrl   =  getEnvOrDefault('ARTIFACTORY_CONTEXT_URL',     'https://artifactory.epam.com/artifactory')
+		artifactory_repo_key     =  getEnvOrDefault('ARTIFACTORY_REPO_KEY',        'AVA-API')
+
+		nodeJsLocation           =  getEnvOrDefault('NODE_JS_LOCATION',            '<node.exe>')
+		ramlOasconverterLocation =  getEnvOrDefault('RAML_OAS_CONVERTER_LOCATION', '<oas-raml-converter path>/lib/bin/converter.js')
+	}
+
+	println 'Configuring repositories'
+
+	repositories {
+		mavenLocal()
+		jcenter()
+		maven {
+			url 'https://artifactory.epam.com/artifactory/AVA-API'
+			credentials {
+				username = artifactory_user
+				password = artifactory_password
+			}
+		}
+		maven { url "https://plugins.gradle.org/m2/" }
+		maven { url "http://dl.bintray.com/epam/reportportal" }
+	}
+
+	ext.extRepos = repositories
+}

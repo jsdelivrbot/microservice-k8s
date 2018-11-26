@@ -1,0 +1,33 @@
+#%RAML 1.0 DataType
+
+type: !include Card.raml
+description: |
+  User manageable usage rights. The properties below are the typical
+  ones, but there might be other such properties introduced, like
+  limiting the card usage only to specific merchant categories.
+  Most anything that is known when the application arrives to the
+  issuer could be filtered.
+properties:
+  mayWithdrawCash:
+    type: boolean
+    required: false
+    default: true
+  mayPurchase:
+    type: boolean
+    required: false
+    default: true
+  mayUseInternetPayment:
+    type: boolean
+    required: false
+    default: true
+  mayUseAtmPayment:
+    type: boolean
+    required: false
+    default: true
+  maySeeBalance:
+    description: |
+      This flag tells whether it is allowed to see the card balance or not.
+      It also applies to ATM transactions or balance requests.
+    type: boolean
+    default: true
+    required: false

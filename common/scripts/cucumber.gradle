@@ -1,0 +1,53 @@
+buildscript {
+    repositories.addAll(extRepos)
+} 
+
+apply plugin: "java"
+apply plugin: "jacoco"
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testRuntime
+    }
+}
+
+sourceSets {
+    launcher.resources {
+        srcDir 'src/test/resources' // order is important for test resources with the same name
+        srcDir 'src/main/resources'
+    }
+}
+
+def collectAbsolute = { Configuration... configurations ->
+    configurations.collect {
+        it.collect{ "file:///$it.absolutePath" }.join(' ')
+    }.join(' ')
+}
+afterEvaluate {
+    task launcherJar(type: Jar, dependsOn: 'jar') {
+        group 'build'
+
+        setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE) //consecutive occurences are ignored
+        appendix 'launcher'
+
+        from sourceSets.launcher.resources
+
+        def classPathLiteral = collectAbsolute(configurations.cucumberRuntime, configurations.compile, configurations.testCompile)
+        manifest {
+            attributes("Class-Path": classPathLiteral)
+        }
+    }
+}
+
+task cucumber(type: Test, dependsOn: "launcherJar") {
+    dependsOn assemble, compileTestJava
+    def jacocoAgent = zipTree(configurations.jacocoAgent.singleFile).filter { it.name == "jacocoagent.jar" }.singleFile
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = files(launcherJar.outputs.files, sourceSets.main.output, sourceSets.test.output)
+            args = ['--plugin', 'pretty', '--glue', 'cucumber.api.spring','--glue', 'com.epam.testcommon.servicedefinitions', '--tags', '~@ignore', 'src/test/resources/features']
+            jvmArgs = ["-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/testComponent.exec,append=true"]
+        }
+    }
+}

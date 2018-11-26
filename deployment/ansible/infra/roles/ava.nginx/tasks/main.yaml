@@ -1,0 +1,25 @@
+---
+- name: Install nginx-server
+  apt: 
+    name: nginx
+    state: present
+  become: true
+
+- name: Copy host configurations
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/nginx/conf.d/{{ item }}"
+  with_items:
+    - jenkins.conf
+    - jenkins-standalone.conf
+  become: true
+  notify:
+    - restart nginx-server
+
+- name: Make sure nginx systemd service is running and enabled
+  systemd:
+    name: nginx.service
+    state: started
+    enabled: yes
+  become: true
+

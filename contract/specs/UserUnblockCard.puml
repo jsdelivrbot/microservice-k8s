@@ -1,0 +1,94 @@
+@startuml
+
+skinparam sequence {
+    ArrowThickness 2
+    ArrowColor DarkBlue
+    LifeLineBorderColor Blue
+    ActorBorderColor #FF00FF
+    ParticipantBorderColor Blue
+}
+skinparam arrow {
+    FontColor DarkBlue
+    FontSize 14
+    FontStyle bold
+}
+
+actor Client #FF00FF
+boundary WebApp #7FDFFF
+
+participant "Fund Transfer API" as Transfer
+participant "Account Management API" as AccountMgmt
+participant "Card Management API" as CardMgmt #99FF99
+participant "SMS/email Gateway" as SMS
+participant "Card Issuer Service" as Issuer
+
+
+note right of Client
+Select Card
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF>Get cards
+activate Client #FF00FF
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GetCards(ClientID)
+activate CardMgmt #99FF99
+WebApp<--CardMgmt: Card[]
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF>List of cards
+deactivate WebApp
+
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF>Select card
+|||
+
+note right of Client
+Unblock card
+end note
+Client-[#FF00FF]>WebApp: <font color=#FF00FF>Unblock Card(CardLastDigits)
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>UnblockCard(ClientID, CardLastDigits)
+activate CardMgmt #99FF99
+CardMgmt-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>GenerateConfirmCode(ClientID, CardLastDigits)
+CardMgmt->SMS: <font color=#7F0000 size=20><b>sendMessage(ClientID, ConfirmCode)
+activate SMS
+SMS-[#FF00FF]>Client: <font color=#FF00FF>Message(ConfirmCode)
+CardMgmt<--SMS: Success
+deactivate SMS
+WebApp<--CardMgmt:Pending
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF>Please enter confirm code
+deactivate WebApp
+
+|||
+Client-[#FF00FF]>Client: <font color=#FF00FF>Enter confirm code
+|||
+
+note right of Client
+Confirm Card Unblock
+end note
+Client-[#FF00FF]>WebApp:<font color=#FF00FF>Confirm Card Unblock(CardLastDigits, ConfirmCode)
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt:<font color=#007F00 size=20><b>ConfirmUnblock(ClientID, CardLastDigits, ConfirmCode)
+activate CardMgmt #99FF99
+CardMgmt-[#007F00]>CardMgmt: <font color=#007F00 size=20><b>getTimestamp(ClientID, CardLastDigits)
+note right of CardMgmt
+Confirmation fails if timestamp is expired
+end note
+CardMgmt->Issuer: <font color=#7F0000 size=20><b>UnblockCard(ClientID, CardLastDigits)
+activate Issuer
+CardMgmt<--Issuer: Done
+deactivate Issuer
+CardMgmt-[#7F0000]>Transfer: <font color=#7F0000 size=18>ApplyUnblockFee(ClientID, AccountID,\n<font color=#7F0000 size=18>LastFourDigits, Amount)
+activate Transfer
+Transfer->AccountMgmt: LockAmount(AccountID, Amount)
+activate AccountMgmt
+Transfer<--AccountMgmt: Done
+deactivate AccountMgmt
+CardMgmt<--Transfer: Done
+deactivate Transfer
+WebApp<--CardMgmt: Acknowledged
+deactivate CardMgmt
+Client<[#FF00FF]--WebApp: <font color=#FF00FF>Unblocked
+deactivate WebApp
+deactivate Client
+
+@enduml

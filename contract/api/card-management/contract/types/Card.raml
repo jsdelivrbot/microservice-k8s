@@ -1,0 +1,16 @@
+#%RAML 1.0 DataType
+
+description: Card attributes that are relevant from card management point of view
+properties:
+    clientId:
+        description: Client identifier - identifies the card holder
+        type: string
+        required: true
+    lastFourDigits:
+        description: Last four digits of the card number
+        type: string
+        required: true
+    ownerId:
+        description: Client identifier - identifies the card owner
+        type: string
+        required: true

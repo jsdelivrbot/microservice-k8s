@@ -1,0 +1,62 @@
+@startuml
+
+skinparam sequence {
+	ArrowColor DarkBlue
+	LifeLineBorderColor Blue
+	ActorBorderColor #FF00FF
+	ParticipantBorderColor Blue
+	ArrowThickness 2
+}
+skinparam arrow {
+	FontColor DarkBlue
+	FontSize 14
+	FontStyle bold
+}
+
+actor "Bank Employee" as Bank #FF00FF
+boundary WebApp #7FDFFF
+
+participant "Card\nManagement API" as CardMgmt #99FF99
+participant "Security Check API" as Security
+participant "Card Issuer Service" as Issuer
+participant "Card Network" as Network
+
+note left Issuer
+Suspicious card usage -> Issuer service blocks the card
+end note
+Network->Issuer: CardActivity
+activate Network
+activate Issuer
+Issuer->Issuer: BlockCard(Card)
+Network<-Issuer: CardBlocked(Card)
+deactivate Network
+Issuer->Security: CardBlockEvent(ClientID, BlockType)
+activate Security
+Issuer<-Security: Acknowledged
+deactivate Security
+deactivate Issuer
+|||
+
+note right of Bank
+Blocking the card for any reason
+end note
+Bank-[#FF00FF]>WebApp:<font color=#FF00FF> Block card (ClientID, LastFourDigits, BlockType)
+activate Bank #FF00FF
+activate WebApp #7FDFFF
+WebApp-[#007F00]>CardMgmt: <font color=#007F00 size=18><b>BlockCard(ClientID, LastFourDigits, BlockType)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>Issuer:  <font color=#7F0000><b>BlockCard(ClientID, LastFourDigits, BlockType)
+activate Issuer
+Issuer->Security: CardBlockEvent(ClientID, BlockType)
+activate Security
+Issuer<--Security: Acknowledged
+deactivate Security
+CardMgmt<--Issuer: Done
+deactivate Issuer
+WebApp<--CardMgmt: Done
+deactivate CardMgmt
+Bank<[#FF00FF]-WebApp: <font color=#FF00FF>Blocked
+deactivate WebApp
+deactivate Bank
+
+@enduml

@@ -1,0 +1,5 @@
+*.retry
+roles/elastic.elasticsearch/
+roles/geerlingguy.nfs/
+roles/geerlingguy.ntp/
+

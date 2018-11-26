@@ -1,0 +1,12 @@
+#%RAML 1.0 DataType
+
+description: Card offers signed digitally
+properties:
+  offer:
+    description: The appected card contract offer.
+    type: CardOffer
+    required: true
+  signature:
+    description: The signature
+    type: string
+    required: true

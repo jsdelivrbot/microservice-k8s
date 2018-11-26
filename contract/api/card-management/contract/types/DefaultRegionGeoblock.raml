@@ -1,0 +1,24 @@
+#%RAML 1.0 DataType
+
+description: Bank-default region-level geoblock configuration
+properties:
+  code:
+    description: Code of the region
+    type: string
+    required: true
+  name:
+    description: Name of the region
+    type: string
+    required: true
+  displayName:
+    description: User friendly name of the region
+    type: string
+    required: true
+  blockedByDefault:
+    description: Boolean flag that represents whether the country is blocked
+    type: boolean
+    required: true
+  customizable:
+    description: Boolean flag that represents whether the configuration is customizable on higher levels
+    type: boolean
+    required: true

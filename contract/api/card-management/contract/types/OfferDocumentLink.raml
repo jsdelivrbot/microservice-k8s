@@ -1,0 +1,12 @@
+#%RAML 1.0 DataType
+
+description: An URL associated with the document in a storage
+properties:
+  url:
+    description: Document URL
+    type: string
+    required: true
+  cardType:
+    description: Specific card type comes from the card issuer
+    type: CardType
+    required: true

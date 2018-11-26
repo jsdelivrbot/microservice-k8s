@@ -1,0 +1,30 @@
+#%RAML 1.0 DataType
+
+description: User friendly information about validation errors
+properties:
+  code:
+    description: Unique identifier of the occurred error
+    type: integer
+    required: false
+  name:
+    description: Name of the validation error case
+    type: string
+    required: false
+  message:
+    description: Short message of the error
+    type: string
+    required: false
+  description:
+    description: Descriptive text explaining the details and background of the validation error
+    type: string
+    required: false
+  classification:
+    description: Classification of the error in case the content holds classified information
+    type: string
+    required: false
+  additional:
+    description: List of additional details that might provide information to client
+    type: array
+    items:
+      type: !include FieldResult.raml
+    required: false

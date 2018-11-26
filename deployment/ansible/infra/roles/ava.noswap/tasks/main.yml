@@ -1,0 +1,25 @@
+---
+- name: debug if swap size is not zero
+  debug:
+    msg: "Swap size is {{ ansible_swaptotal_mb }}, not zero! Swap will be erased before k8s deployment! "
+  when: ansible_swaptotal_mb != 0
+
+- name: Show swap location
+  debug:
+    msg: "Swap location is at /dev/mapper/{{ swap_volgroup }}"
+  when: ansible_swaptotal_mb != 0
+
+- name: Disable swapping for the associated logical volume
+  shell: "swapoff -v /dev/mapper/{{ swap_volgroup }}"
+  when: ansible_swaptotal_mb != 0
+  ignore_errors: true
+
+- name: Remove current swaps from fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: "^/dev/mapper/{{ swap_volgroup }} swap"
+    state: absent
+
+- name: Show the currently available swap
+  shell: free -m
+

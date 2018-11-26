@@ -1,0 +1,128 @@
+@startuml
+
+skinparam sequence {
+ArrowThickness 2
+ArrowColor DarkBlue
+LifeLineBorderColor Blue
+ActorBorderColor Blue
+ParticipantBorderColor Blue
+}
+skinparam arrow {
+FontColor DarkBlue
+FontSize 14
+FontStyle bold
+}
+
+actor Client
+actor "Bank Employee" as Bank
+boundary WebApp
+
+participant "Card\nManagement API" as CardMgmt #99FF99
+participant "Document\nRepository" as Repo
+participant "Account\nManagement API" as AccountMgmt
+participant "Client\nManagement API" as CRM
+participant "Security Check API" as Security
+
+Client-[#FF00FF]>Bank: Modify contract
+activate Client #FF00FF
+activate Bank #FF7FFF
+|||
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>VerifyClient(identity)
+activate WebApp #7FDFFF
+WebApp->CRM: GetClientData(identity)
+activate CRM
+WebApp<--CRM: ClientData
+deactivate CRM
+Bank<--WebApp: <font color=#FF00FF><b>ClientData
+deactivate WebApp
+
+|||
+
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>Get contract(ClientID)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+GET /contracts?card={cardId}
+end note
+WebApp-[#007F00]>CardMgmt: GetContract(ClientID, LastFourDigits)
+activate CardMgmt
+WebApp<--CardMgmt: Contract
+deactivate CardMgmt
+Bank<-WebApp: <font color=#FF00FF><b>Contract
+deactivate WebApp
+
+|||
+note over Bank
+Security check
+end note
+Bank-[#FF00FF]>WebApp: <font color=#FF00FF><b>Verify Client(ClientID)
+activate WebApp #7FDFFF
+WebApp->Security: VerifyClient(ClientData, "DebitCardApplication")
+activate Security
+note right of Security
+Eligibility,
+Suitability,
+Compliance,
+Anti-Money Laundering
+Fraud Detection
+end note
+WebApp<--Security: Allowed
+deactivate Security
+Bank<--WebApp: <font color=#FF00FF><b>Allowed
+deactivate WebApp
+
+|||
+note over Bank
+Get available accounts
+end note
+Bank->WebApp: Get accounts(ClientID)
+activate WebApp #7FDFFF
+WebApp->AccountMgmt: Get accounts(ClientID, "ApplyForDebitCard")
+activate AccountMgmt
+WebApp<--AccountMgmt: Account[]
+deactivate AccountMgmt
+Bank<--WebApp: List of accounts
+deactivate WebApp
+Client<[#FF00FF]--Bank: <font color=#FF00FF><b>Please select the account
+
+|||
+...
+note right of Client
+Client may want a different
+type of account
+
+Might want other changes
+end note
+...
+Client-[#FF00FF]>Bank: Signing changed contract
+Bank->WebApp: Sign off modified contract(AccountID, OfferID)
+activate WebApp #7FDFFF
+note over CardMgmt #FF7F3F
+PATCH /contracts/{contractId}
+end note
+WebApp->CardMgmt:ModifyContract(ClientID, AccountID, OfferID)
+activate CardMgmt #00FF00
+CardMgmt-[#7F0000]>Security:<font color=#7F0000 size=18><b>VerifyClient(ChangeData, "DebitCardChange")
+activate Security
+note right of Security
+Eligibility,
+Suitability,
+Compliance,
+Anti-Money Laundering
+Fraud Detection
+end note
+CardMgmt<--Security:Allowed
+deactivate Security
+CardMgmt-[#7F0000]>Repo: <font color=#7F0000 size=18><b>StoreModifiedContract(clientID, OfferID, previousContractID)
+activate Repo
+CardMgmt<--Repo:DocumentID
+deactivate Repo
+WebApp<--CardMgmt: Done
+deactivate CardMgmt
+Bank<--WebApp: Done
+deactivate WebApp
+Client<-Bank: Done
+deactivate Bank
+deactivate Client
+
+
+@enduml 

@@ -1,0 +1,7 @@
+---
+- include: elasticsearch.yml
+- include: nginx-proxy.yaml
+- include: jenkins.yml
+- include: prepare-cluster.yml
+- include: prom-node-exporter.yml
+

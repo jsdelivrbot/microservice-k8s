@@ -1,0 +1,8 @@
+#%RAML 1.0 Trait
+
+headers:
+  X-Internal-Authorization-Token:
+    type: string
+    description: |
+      Internal JSON representation of the OAuth Bearer token provided by the authorization server.
+    pattern: \{.*\:\{.*\:.*\}\}

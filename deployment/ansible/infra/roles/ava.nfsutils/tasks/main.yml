@@ -1,0 +1,6 @@
+---
+- name: Install NFS utils to be able to handle nfs mounts
+  yum: 
+    name: nfs-utils
+    state: installed
+  become: true

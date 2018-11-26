@@ -1,0 +1,115 @@
+# Default values for monocular.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+api:
+  replicaCount: 1
+  image:
+    repository: bitnami/monocular-api
+    tag: v0.6.0
+    pullPolicy: Always
+  service:
+    name: monocular-api
+    type: NodePort
+    externalPort: 80
+    internalPort: 8081
+    annotations: {}
+      # foo.io/bar: "true"
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  livenessProbe:
+    initialDelaySeconds: 60
+  auth:
+    signingKey:
+    github:
+      clientID:
+      clientSecret:
+  config:
+    repos:
+      # Add AVA-API chart repository
+      - name: ava-api-chartrepo
+        url: http://chartmuseum.10.253.129.19.nip.io
+        source: http://git.epam.com/ava-api/ava-api-deployment/tree/master/helm/charts/chartmuseum
+    cors:
+      allowed_origins:
+        - http://monocular.10.253.129.19.nip.io
+        - http://monocular.local
+        # e.g. UI served on a different domain
+        # - http://monocular.local
+      allowed_headers:
+        - "content-type"
+        - "x-xsrf-token"
+    # Enable Helm deployment integration
+    releasesEnabled: false
+    tillerNamespace: kube-system
+    # Cache refresh interval in sec.
+    cacheRefreshInterval: 60
+ui:
+  replicaCount: 1
+  image:
+    repository: bitnami/monocular-ui
+    tag: v0.6.0
+    pullPolicy: Always
+  service:
+    name: monocular-ui
+    type: NodePort
+    externalPort: 80
+    internalPort: 8080
+    annotations: {}
+      # foo.io/bar: "true"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # ui-config populate
+  googleAnalyticsId: UA-XXXXXX-X
+  appName: Monocular - Helm Charts for the AVA-API project
+  # API served on same-domain at /api path using Nginx Ingress controller
+  backendHostname: /api
+  # e.g. API served on a different domain
+  # backendHostname: http://monocular-api.local
+
+prerender:
+  replicaCount: 1
+  image:
+    repository: migmartri/prerender
+    tag: latest
+    pullPolicy: Always
+  cacheEnabled: true
+  service:
+    name: prerender
+    type: NodePort
+    externalPort: 80
+    internalPort: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+ingress:
+  enabled: true
+  hosts:
+    - monocular.10.253.129.19.nip.io
+  ## Ingress annotations
+  ##
+  annotations:
+    ## Nginx ingress controller (default)
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: 'true'
+    ## Traefik ingress controller
+    # traefik.frontend.rule.type: PathPrefixStrip
+    # kubernetes.io/ingress.class: traefik
+
+  ## Ingress TLS configuration
+  ## Secrets must be manually created in the namespace
+  ##
+  # tls:
+  #   secretName: monocular.local-tls

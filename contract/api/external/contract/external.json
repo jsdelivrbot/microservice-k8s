@@ -1,0 +1,203 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "External API",
+    "description": "This API covers the following supported areas:\n- Document repository API\n- Account management API\n- Client management API\n- Security check API\n- Card issuer service API\n- Card network API\n",
+    "version": "1.1.0"
+  },
+  "tags": [
+    {
+      "name": "cards",
+      "description": "Card Management API"
+    }
+  ],
+  "consumes": [
+    "application/vnd.epam.card.management+json"
+  ],
+  "produces": [
+    "application/vnd.epam.card.management+json"
+  ],
+  "definitions": {
+    "IdResponse": {
+      "description": "Response containing only the ID of a resource.",
+      "properties": {
+        "id": {
+          "description": "Entity identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "ValidationErrorResponse": {
+      "description": "User friendly information about validation errors",
+      "properties": {
+        "code": {
+          "description": "Unique identifier of the occurred error",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Name of the validation error case",
+          "type": "string"
+        },
+        "message": {
+          "description": "Short message of the error",
+          "type": "string"
+        },
+        "description": {
+          "description": "Descriptive text explaining the details and background of the validation error",
+          "type": "string"
+        },
+        "classification": {
+          "description": "Classification of the error in case the content holds classified information",
+          "type": "string"
+        },
+        "additional": {
+          "description": "List of additional details that might provide information to client",
+          "type": "array",
+          "items": {
+            "description": "Field information in order to identify the cause of validation error",
+            "properties": {
+              "field": {
+                "description": "The name of the field that caused validation error",
+                "type": "string"
+              },
+              "message": {
+                "description": "Validation error message that belongs to this field only",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "Account": {
+      "properties": {
+        "clientId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    },
+    "ClientData": {
+      "properties": {
+        "clientId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    },
+    "ContractDocuement": {
+      "description": "Contract document",
+      "properties": {
+        "clientId": {
+          "description": "Client identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    },
+    "DocumentLink": {
+      "description": "An URL associated with the document in a storage",
+      "properties": {
+        "url": {
+          "description": "Document URL",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "Statement": {
+      "description": "Statement",
+      "properties": {
+        "clientId": {
+          "description": "Client identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId"
+      ],
+      "type": "object"
+    }
+  },
+  "parameters": {
+    "trait:clientaware:X-Client-ID": {
+      "description": "Contains the clientId. Example: 543210\n",
+      "type": "string",
+      "in": "header",
+      "name": "X-Client-ID",
+      "required": true
+    },
+    "trait:secured:X-Internal-Authorization-Token": {
+      "pattern": "\\{.*\\:\\{.*\\:.*\\}\\}",
+      "description": "Internal JSON representation of the OAuth Bearer token provided by the authorization server.\n",
+      "type": "string",
+      "in": "header",
+      "name": "X-Internal-Authorization-Token",
+      "required": true
+    }
+  },
+  "paths": {
+    "/account-management": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "operationId": "getAccounts",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Account"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "client_id"
+          }
+        ]
+      }
+    }
+  }
+}

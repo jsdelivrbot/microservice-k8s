@@ -1,0 +1,78 @@
+import com.epam.testcommon.utilities.Constants
+
+buildscript {
+  repositories.addAll(extRepos)
+
+	dependencies {
+        classpath "com.epam:test-common:1.0.0-SNAPSHOT"
+    }
+}
+
+ext.getEnv = { ->
+    if (project.hasProperty(Constants.TEST_ENV_ENVIRONMENT_VARIABLE_NAME)) {
+        return project.properties[Constants.TEST_ENV_ENVIRONMENT_VARIABLE_NAME]
+    } else {
+        return Constants.DEFAULT_ENV
+    }
+}
+
+ext.getTargets = { ->
+    if (project.hasProperty(Constants.TEST_TARGETS_ENVIRONMENT_VARIABLE_NAME)) {
+        return project.properties[Constants.TEST_TARGETS_ENVIRONMENT_VARIABLE_NAME]
+    } else {
+        return project.name
+    }
+}
+
+task testUnit(type: Test, dependsOn: compileTestJava){
+    useTestNG(){
+        environment Constants.TEST_TYPE_ENVIRONMENT_VARIABLE_NAME, Constants.UNIT_GROUP
+		environment Constants.TEST_ENV_ENVIRONMENT_VARIABLE_NAME, getEnv()
+		environment Constants.TEST_TARGETS_ENVIRONMENT_VARIABLE_NAME, getTargets()
+        filter {
+            includeGroups Constants.UNIT_GROUP
+        }
+    }
+	testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task testComponent(type: Test){
+	dependsOn testUnit
+	dependsOn cucumber
+	tasks.findByName('cucumber').mustRunAfter 'testUnit'
+    useTestNG(){
+        environment Constants.TEST_TYPE_ENVIRONMENT_VARIABLE_NAME, Constants.UNIT_GROUP
+		environment Constants.TEST_ENV_ENVIRONMENT_VARIABLE_NAME, getEnv()
+        environment Constants.TEST_TYPE_ENVIRONMENT_VARIABLE_NAME, Constants.COMPONENT_GROUP
+        filter {
+            includeGroups Constants.COMPONENT_GROUP
+        }
+    }
+	testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+task testComponentPerformance(type: Test, dependsOn: testUnit){
+    useTestNG(){
+        environment Constants.TEST_TYPE_ENVIRONMENT_VARIABLE_NAME, Constants.UNIT_GROUP
+		environment Constants.TEST_ENV_ENVIRONMENT_VARIABLE_NAME, getEnv()
+        environment Constants.TEST_TYPE_ENVIRONMENT_VARIABLE_NAME, Constants.COMPONENT_PERFORMANCE_GROUP
+        filter {
+            includeGroups Constants.COMPONENT_PERFORMANCE_GROUP
+        }
+    }
+	testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+test {
+	//exclude 'com/**'
+    test.dependsOn testUnit
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}

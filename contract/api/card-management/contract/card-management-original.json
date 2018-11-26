@@ -1,0 +1,3384 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Card Management API",
+    "description": "This API covers the following supported areas:\n- Card Offers\n- Card Contracts\n- Card finance data\n- Transactions\n- Cards\n- Geoblocks\n",
+    "version": "1.1.0"
+  },
+  "tags": [
+    {
+      "name": "cards",
+      "description": "Card Management API"
+    }
+  ],
+  "consumes": [
+    "application/vnd.epam.card.management+json"
+  ],
+  "produces": [
+    "application/vnd.epam.card.management+json"
+  ],
+  "definitions": {
+    "IdResponse": {
+      "description": "Response containing only the ID of a resource.",
+      "properties": {
+        "id": {
+          "description": "Entity identifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "ValidationErrorResponse": {
+      "description": "User friendly information about validation errors",
+      "properties": {
+        "code": {
+          "description": "Unique identifier of the occurred error",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Name of the validation error case",
+          "type": "string"
+        },
+        "message": {
+          "description": "Short message of the error",
+          "type": "string"
+        },
+        "description": {
+          "description": "Descriptive text explaining the details and background of the validation error",
+          "type": "string"
+        },
+        "classification": {
+          "description": "Classification of the error in case the content holds classified information",
+          "type": "string"
+        },
+        "additional": {
+          "description": "List of additional details that might provide information to client",
+          "type": "array",
+          "items": {
+            "description": "Field information in order to identify the cause of validation error",
+            "properties": {
+              "field": {
+                "description": "The name of the field that caused validation error",
+                "type": "string"
+              },
+              "message": {
+                "description": "Validation error message that belongs to this field only",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "Card": {
+      "description": "Card attributes that are relevant from card management point of view",
+      "properties": {
+        "clientId": {
+          "description": "Client identifier - identifies the card holder",
+          "type": "string"
+        },
+        "lastFourDigits": {
+          "description": "Last four digits of the card number",
+          "type": "string"
+        },
+        "ownerId": {
+          "description": "Client identifier - identifies the card owner",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "lastFourDigits",
+        "ownerId"
+      ],
+      "type": "object"
+    },
+    "CardBlock": {
+      "description": "Card block",
+      "properties": {
+        "blockType": {
+          "type": "string"
+        },
+        "addedAtDateTime": {
+          "type": "string"
+        },
+        "effectiveUntilDateTime": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "blockType",
+        "addedAtDateTime"
+      ],
+      "type": "object"
+    },
+    "CardDetails": {
+      "description": "Card attributes that might be modified",
+      "properties": {
+        "mainAccount": {
+          "description": "The main account this card is assigned to. The card might be\nassigned to another account, but the main account never changes\nand thus could be used to group the main card and the\nadditional cards.\n",
+          "type": "string"
+        },
+        "serialNumber": {
+          "description": "The serial number of the card; increased whenever a new card\nwith the same card number is issued.\n",
+          "type": "string"
+        },
+        "expiryDate": {
+          "description": "The year and month after that the card expires.",
+          "type": "string"
+        },
+        "accountId": {
+          "description": "Account properties relevant for card management",
+          "properties": {
+            "accountNumber": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "accountNumber"
+          ],
+          "type": "object"
+        },
+        "eActivation": {
+          "description": "The flag tells whether the user opted for e-activation (receiving\nthe first time pin via SMS or email) instead of the traditional\npaper-based mailing of the pin.\n",
+          "type": "boolean"
+        },
+        "mailAddress": {
+          "description": "The address to that the card should be sent. When empty,\nit means the user's main home address (CMR) is being used.\n",
+          "properties": {
+            "Country": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Street1": {
+              "type": "string"
+            },
+            "Street2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Country",
+            "City",
+            "Street1"
+          ],
+          "type": "object"
+        },
+        "pinAddress": {
+          "description": "The address to that the PIN mail should be sent. When empty,\nit means the user's main home address (CMR) is being used.\n",
+          "properties": {
+            "Country": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Street1": {
+              "type": "string"
+            },
+            "Street2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Country",
+            "City",
+            "Street1"
+          ],
+          "type": "object"
+        },
+        "invoiceAddress": {
+          "description": "The address to that the invoice should be sent. When empty,\nit means the user's main home address (CMR) is being used.\n",
+          "properties": {
+            "Country": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Street1": {
+              "type": "string"
+            },
+            "Street2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Country",
+            "City",
+            "Street1"
+          ],
+          "type": "object"
+        },
+        "activated": {
+          "description": "The flag showing whether the card is activated or not.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mainAccount",
+        "serialNumber",
+        "expiryDate"
+      ],
+      "type": "object"
+    },
+    "CardFee": {
+      "description": "Fees associated with the card",
+      "properties": {
+        "yearlyFeeAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "monthlyFeeAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "debtInterestRate": {
+          "description": "The yearly interest rate in case of debt",
+          "type": "number"
+        },
+        "creditInterestRate": {
+          "description": "The yearly interest rate in case of credit",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "CardUpdate": {
+      "description": "Card attributes that are relevant from card management point of view",
+      "properties": {
+        "accountId": {
+          "description": "Account properties relevant for card management",
+          "properties": {
+            "accountNumber": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "accountNumber"
+          ],
+          "type": "object"
+        },
+        "eActivation": {
+          "description": "The flag tells whether the user opted for e-activation (receiving\nthe first time pin via SMS or email) instead of the traditional\npaper-based mailing of the pin.\n",
+          "type": "boolean"
+        },
+        "mailAddress": {
+          "description": "The address to that the card should be sent. When empty,\nit means the user's main home address (CMR) is being used.\n",
+          "properties": {
+            "Country": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Street1": {
+              "type": "string"
+            },
+            "Street2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Country",
+            "City",
+            "Street1"
+          ],
+          "type": "object"
+        },
+        "pinAddress": {
+          "description": "The address to that the PIN mail should be sent. When empty,\nit means the user's main home address (CMR) is being used.\n",
+          "properties": {
+            "Country": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Street1": {
+              "type": "string"
+            },
+            "Street2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Country",
+            "City",
+            "Street1"
+          ],
+          "type": "object"
+        },
+        "invoiceAddress": {
+          "description": "The address to that the invoice should be sent. When empty,\nit means the user's main home address (CMR) is being used.\n",
+          "properties": {
+            "Country": {
+              "type": "string"
+            },
+            "State": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Street1": {
+              "type": "string"
+            },
+            "Street2": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Country",
+            "City",
+            "Street1"
+          ],
+          "type": "object"
+        },
+        "activated": {
+          "description": "The flag showing whether the card is activated or not.",
+          "type": "boolean"
+        },
+        "clientId": {
+          "description": "Client identifier - identifies the card holder",
+          "type": "string"
+        },
+        "lastFourDigits": {
+          "description": "Last four digits of the card number",
+          "type": "string"
+        },
+        "ownerId": {
+          "description": "Client identifier - identifies the card owner",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "lastFourDigits",
+        "ownerId"
+      ],
+      "type": "object"
+    },
+    "CardOffer": {
+      "description": "Card offers available for a given account",
+      "properties": {
+        "offerId": {
+          "description": "The unique ID of the offer",
+          "type": "string"
+        },
+        "cardType": {
+          "description": "The type of the card",
+          "example": "Visa",
+          "type": "string"
+        },
+        "conditionId": {
+          "description": "An URL associated with the document in a storage",
+          "properties": {
+            "url": {
+              "description": "Document URL",
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "cardFees": {
+          "description": "Fees associated with the card",
+          "properties": {
+            "yearlyFeeAmount": {
+              "description": "Money amount (sum and currency)",
+              "properties": {
+                "amount": {
+                  "description": "The amount in the given currency",
+                  "type": "number"
+                },
+                "currency": {
+                  "description": "The currency",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "amount",
+                "currency"
+              ],
+              "type": "object"
+            },
+            "monthlyFeeAmount": {
+              "description": "Money amount (sum and currency)",
+              "properties": {
+                "amount": {
+                  "description": "The amount in the given currency",
+                  "type": "number"
+                },
+                "currency": {
+                  "description": "The currency",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "amount",
+                "currency"
+              ],
+              "type": "object"
+            },
+            "debtInterestRate": {
+              "description": "The yearly interest rate in case of debt",
+              "type": "number"
+            },
+            "creditInterestRate": {
+              "description": "The yearly interest rate in case of credit",
+              "type": "number"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "offerId",
+        "cardType",
+        "conditionId",
+        "cardFees"
+      ],
+      "type": "object"
+    },
+    "CardCustomParams": {
+      "description": "Card attributes that are relevant from card management point of view",
+      "properties": {
+        "cardName": {
+          "description": "Name of the card as it appears on the eBanking user interface. The\ndefault (original) value is the card type, followed by the last four\ndigits of the card.\n",
+          "type": "string"
+        },
+        "holderMaySeeBalance": {
+          "default": false,
+          "description": "This flag tells whether the holder may see the card balance or not.\nThe flag is applied only if the holder and the owner are not the\nsame client (e.g. in case of additional cards).\n",
+          "type": "boolean"
+        },
+        "holderMaySeeStatement": {
+          "default": false,
+          "description": "This flag tells whether the holder may see the statements or not.\nThe flag is applied only if the holder and the owner are not the\nsame client (e.g. in case of additional cards).\n",
+          "type": "boolean"
+        },
+        "holderMayChangeRights": {
+          "default": false,
+          "description": "This flag tells whether the holder may change the usage rights or not.\nThe flag is applied only if the holder and the owner are not the\nsame client (e.g. in case of additional cards).\n",
+          "type": "boolean"
+        },
+        "holderMayChangeLimits": {
+          "default": false,
+          "description": "This flag tells whether the holder may change the usage limits or not.\nThe flag is applied only if the holder and the owner are not the\nsame client (e.g. in case of additional cards).\n",
+          "type": "boolean"
+        },
+        "clientId": {
+          "description": "Client identifier - identifies the card holder",
+          "type": "string"
+        },
+        "lastFourDigits": {
+          "description": "Last four digits of the card number",
+          "type": "string"
+        },
+        "ownerId": {
+          "description": "Client identifier - identifies the card owner",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "lastFourDigits",
+        "ownerId"
+      ],
+      "type": "object"
+    },
+    "CardUsageRights": {
+      "description": "Card attributes that are relevant from card management point of view",
+      "properties": {
+        "mayWithdrawCash": {
+          "default": true,
+          "type": "boolean"
+        },
+        "mayPurchase": {
+          "default": true,
+          "type": "boolean"
+        },
+        "mayUseInternetPayment": {
+          "default": true,
+          "type": "boolean"
+        },
+        "mayUseAtmPayment": {
+          "default": true,
+          "type": "boolean"
+        },
+        "maySeeBalance": {
+          "default": true,
+          "description": "This flag tells whether it is allowed to see the card balance or not.\nIt also applies to ATM transactions or balance requests.\n",
+          "type": "boolean"
+        },
+        "clientId": {
+          "description": "Client identifier - identifies the card holder",
+          "type": "string"
+        },
+        "lastFourDigits": {
+          "description": "Last four digits of the card number",
+          "type": "string"
+        },
+        "ownerId": {
+          "description": "Client identifier - identifies the card owner",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "lastFourDigits",
+        "ownerId"
+      ],
+      "type": "object"
+    },
+    "CardUsageLimits": {
+      "description": "Card attributes that are relevant from card management point of view",
+      "properties": {
+        "dailyPurchaseLimit": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "weeklyPurchaseLimit": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "monthlyPurchaseLimit": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "isPurchaseLimitLiftAllowed": {
+          "description": "Tells whether the end customer wants to allow temporary lift of the\nusage limit without eBanking or phoneBanking. Available only if the\nBank implements methods to lift the limit via alternative ways.\nTypical scenario: end customer uses the card, gets refused, and gets\nnotification about exceeding the limit. Now s/he may send back his\nown preset password and the just received one via SMS, which lifts\nthe block for that particular beneficiary only (lift is valid within\na certain time limit too).\n",
+          "type": "boolean"
+        },
+        "purchaseTimeframeStart": {
+          "description": "Allows the end customer to set the period of time within that\nit is allowed to use the card in POS terminals to pay with.\nThis attribute means the daily starting hour of the period\n(the given hour is included). The time is local for the current\ngeographical location of the card transaction where it occurs.\n",
+          "type": "integer"
+        },
+        "purchaseTimeframeEnd": {
+          "description": "Allows the end customer to set the period of time within that\nit is allowed to use the card in POS terminals to pay with.\nThis attribute means the daily ending hour of the period\n(the given hour is included). The time is local for the current\ngeographical location of the card transaction where it occurs.\n",
+          "type": "integer"
+        },
+        "dailyWithdrawLimit": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "weeklyWithdrawLimit": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "monthlyWithdrawLimit": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "clientId": {
+          "description": "Client identifier - identifies the card holder",
+          "type": "string"
+        },
+        "lastFourDigits": {
+          "description": "Last four digits of the card number",
+          "type": "string"
+        },
+        "ownerId": {
+          "description": "Client identifier - identifies the card owner",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "lastFourDigits",
+        "ownerId"
+      ],
+      "type": "object"
+    },
+    "CardAccount": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "accountNumber": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "accountNumber"
+      ],
+      "type": "object"
+    },
+    "ContractDetails": {
+      "description": "Details of a particular contract",
+      "properties": {
+        "countryId": {
+          "type": "string"
+        },
+        "clientId": {
+          "type": "string"
+        },
+        "offerId": {
+          "description": "The ID of the offer this contract is based upon.",
+          "type": "string"
+        },
+        "cardId": {
+          "description": "The ID of the card this contract is associated with.",
+          "type": "string"
+        },
+        "conditions": {
+          "example": "visaconditions.pdf",
+          "type": "string"
+        }
+      },
+      "required": [
+        "countryId",
+        "clientId",
+        "offerId",
+        "cardId",
+        "conditions"
+      ],
+      "type": "object"
+    },
+    "DueFee": {
+      "description": "Fees associated with the card",
+      "properties": {
+        "yearlyFeeAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "monthlyFeeAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "Balance": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "account": {
+          "description": "Account properties relevant for card management",
+          "properties": {
+            "accountNumber": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "accountNumber"
+          ],
+          "type": "object"
+        },
+        "card": {
+          "description": "Card attributes that are relevant from card management point of view",
+          "properties": {
+            "clientId": {
+              "description": "Client identifier - identifies the card holder",
+              "type": "string"
+            },
+            "lastFourDigits": {
+              "description": "Last four digits of the card number",
+              "type": "string"
+            },
+            "ownerId": {
+              "description": "Client identifier - identifies the card owner",
+              "type": "string"
+            }
+          },
+          "required": [
+            "clientId",
+            "lastFourDigits",
+            "ownerId"
+          ],
+          "type": "object"
+        },
+        "balance": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "account",
+        "balance"
+      ],
+      "type": "object"
+    },
+    "Statement": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "account": {
+          "description": "Account properties relevant for card management",
+          "properties": {
+            "accountNumber": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "accountNumber"
+          ],
+          "type": "object"
+        },
+        "card": {
+          "description": "Card attributes that are relevant from card management point of view",
+          "properties": {
+            "clientId": {
+              "description": "Client identifier - identifies the card holder",
+              "type": "string"
+            },
+            "lastFourDigits": {
+              "description": "Last four digits of the card number",
+              "type": "string"
+            },
+            "ownerId": {
+              "description": "Client identifier - identifies the card owner",
+              "type": "string"
+            }
+          },
+          "required": [
+            "clientId",
+            "lastFourDigits",
+            "ownerId"
+          ],
+          "type": "object"
+        },
+        "openBalance": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "closeBalance": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "transaction": {
+          "type": "array",
+          "items": {
+            "description": "Account properties relevant for card management",
+            "properties": {
+              "transactionId": {
+                "type": "string"
+              },
+              "transactionAmount": {
+                "description": "Money amount (sum and currency)",
+                "properties": {
+                  "amount": {
+                    "description": "The amount in the given currency",
+                    "type": "number"
+                  },
+                  "currency": {
+                    "description": "The currency",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency"
+                ],
+                "type": "object"
+              },
+              "transactionDateTime": {
+                "type": "string"
+              },
+              "beneficiary": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "transactionId",
+              "transactionAmount",
+              "transactionDateTime",
+              "beneficiary"
+            ],
+            "type": "object"
+          }
+        }
+      },
+      "required": [
+        "account",
+        "card",
+        "openBalance",
+        "closeBalance",
+        "transaction"
+      ],
+      "type": "object"
+    },
+    "Transaction": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "transactionId": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "transactionDateTime": {
+          "type": "string"
+        },
+        "beneficiary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "transactionId",
+        "transactionAmount",
+        "transactionDateTime",
+        "beneficiary"
+      ],
+      "type": "object"
+    },
+    "TransactionDetail": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "merchantSector": {
+          "type": "string"
+        },
+        "transactionCountry": {
+          "type": "string"
+        },
+        "transactionType": {
+          "enum": [
+            "withdrawal",
+            "deposit",
+            "purchase",
+            "revoke",
+            "incomingTransfer",
+            "outgoingTransfer",
+            "fee"
+          ],
+          "type": "string"
+        },
+        "transactionId": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "transactionDateTime": {
+          "type": "string"
+        },
+        "beneficiary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "transactionType",
+        "transactionId",
+        "transactionAmount",
+        "transactionDateTime",
+        "beneficiary"
+      ],
+      "type": "object"
+    },
+    "DefaultRegionGeoblock": {
+      "description": "Bank-default region-level geoblock configuration",
+      "properties": {
+        "code": {
+          "description": "Code of the region",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the region",
+          "type": "string"
+        },
+        "displayName": {
+          "description": "User friendly name of the region",
+          "type": "string"
+        },
+        "blockedByDefault": {
+          "description": "Boolean flag that represents whether the country is blocked",
+          "type": "boolean"
+        },
+        "customizable": {
+          "description": "Boolean flag that represents whether the configuration is customizable on higher levels",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "displayName",
+        "blockedByDefault",
+        "customizable"
+      ],
+      "type": "object"
+    },
+    "DefaultCountryGeoblock": {
+      "description": "Bank-default country-level geoblock configuration",
+      "properties": {
+        "countryIso": {
+          "description": "ISO code of a country",
+          "type": "string"
+        },
+        "regionCode": {
+          "description": "Code of the region that contains the country",
+          "type": "string"
+        },
+        "displayName": {
+          "description": "User friendly name of the country",
+          "type": "string"
+        },
+        "blockedByDefault": {
+          "description": "Boolean flag that represents whether the country is blocked",
+          "type": "boolean"
+        },
+        "customizable": {
+          "description": "Boolean flag that represents whether the configuration is customizable on higher levels",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "countryIso",
+        "regionCode",
+        "displayName",
+        "customizable"
+      ],
+      "type": "object"
+    },
+    "RegionGeoblock": {
+      "description": "Region-level geoblock configuration",
+      "properties": {
+        "cardId": {
+          "description": "Card identifier as a composite of client identifier and the last four digits of the card",
+          "type": "string"
+        },
+        "regionCode": {
+          "description": "Code of a region",
+          "type": "string"
+        },
+        "blocked": {
+          "description": "Boolean flag that represents whether the card is blocked in the given country",
+          "type": "boolean"
+        },
+        "expirationDate": {
+          "description": "Expiration date of the blocking in the following format (YYYY-MM-DD).",
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "cardId",
+        "regionCode",
+        "blocked"
+      ],
+      "type": "object"
+    },
+    "CountryGeoblock": {
+      "description": "Country-level geoblock configuration",
+      "properties": {
+        "cardId": {
+          "description": "Card identifier as a composite of client identifier and the last four digits of the card",
+          "type": "string"
+        },
+        "countryIso": {
+          "description": "ISO code of a country",
+          "type": "string"
+        },
+        "blocked": {
+          "description": "Boolean flag that represents whether the card is blocked in the given country",
+          "type": "boolean"
+        },
+        "expirationDate": {
+          "description": "Expiration date of the blocking in the following format (YYYY-MM-DD).",
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "cardId",
+        "countryIso",
+        "blocked"
+      ],
+      "type": "object"
+    },
+    "RegionGeoblockRequest": {
+      "description": "Model for creating a new region-level geoblock configuration",
+      "properties": {
+        "regionCode": {
+          "description": "Code of a region",
+          "type": "string"
+        },
+        "expirationDate": {
+          "description": "Expiration date of the blocking in the following format (YYYY-MM-DD).",
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "regionCode"
+      ],
+      "type": "object"
+    },
+    "CountryGeoblockRequest": {
+      "description": "Model for creating a new country-level geoblock configuration",
+      "properties": {
+        "countryIso": {
+          "description": "ISO code of a country",
+          "type": "string"
+        },
+        "expirationDate": {
+          "description": "Expiration date of the blocking in the following format (YYYY-MM-DD).",
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "countryIso"
+      ],
+      "type": "object"
+    },
+    "WithdrawTransaction": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "countryCode": {
+          "description": "ISO code of the country where the card is going to be used.\n",
+          "type": "string"
+        },
+        "merchantAreaCode": {
+          "description": "The merchant area to that the beneficiary belongs.\n",
+          "type": "string"
+        },
+        "transactionId": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "transactionDateTime": {
+          "type": "string"
+        },
+        "beneficiary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "countryCode",
+        "transactionId",
+        "transactionAmount",
+        "transactionDateTime",
+        "beneficiary"
+      ],
+      "type": "object"
+    },
+    "PurchaseTransaction": {
+      "description": "Account properties relevant for card management",
+      "properties": {
+        "countryCode": {
+          "description": "ISO code of the country where the card is going to be used.\n",
+          "type": "string"
+        },
+        "transactionId": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "description": "Money amount (sum and currency)",
+          "properties": {
+            "amount": {
+              "description": "The amount in the given currency",
+              "type": "number"
+            },
+            "currency": {
+              "description": "The currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ],
+          "type": "object"
+        },
+        "transactionDateTime": {
+          "type": "string"
+        },
+        "beneficiary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "countryCode",
+        "transactionId",
+        "transactionAmount",
+        "transactionDateTime",
+        "beneficiary"
+      ],
+      "type": "object"
+    }
+  },
+  "parameters": {
+    "trait:clientaware:X-Client-ID": {
+      "description": "Contains the clientId. Example: 543210\n",
+      "type": "string",
+      "in": "header",
+      "name": "X-Client-ID",
+      "required": true
+    },
+    "trait:secured:X-Internal-Authorization-Token": {
+      "pattern": "\\{.*\\:\\{.*\\:.*\\}\\}",
+      "description": "Internal JSON representation of the OAuth Bearer token provided by the authorization server.\n",
+      "type": "string",
+      "in": "header",
+      "name": "X-Internal-Authorization-Token",
+      "required": true
+    }
+  },
+  "paths": {
+    "/card-offers": {
+      "get": {
+        "description": "Retrieves the card offers available for the given account.",
+        "tags": [
+          "card-offers"
+        ],
+        "operationId": "getCardOffers",
+        "responses": {
+          "200": {
+            "description": "List of the card offers",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CardOffer"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "required": true,
+            "description": "The accountID the offer should be created for",
+            "type": "string",
+            "in": "query",
+            "name": "account_id"
+          }
+        ]
+      }
+    },
+    "/card-offers/{offerId}/conditions": {
+      "get": {
+        "description": "Retrieves the terms and conditions associated with the given offer.",
+        "tags": [
+          "card-offers"
+        ],
+        "operationId": "getCardConditions",
+        "responses": {
+          "200": {
+            "description": "The terms and conditions"
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "offerId",
+          "required": true
+        }
+      ]
+    },
+    "/contracts": {
+      "get": {
+        "description": "Get the list of the user's contracts.",
+        "tags": [
+          "contracts"
+        ],
+        "operationId": "getUserContracts",
+        "responses": {
+          "200": {
+            "description": "The list of contracts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ContractDetails"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "description": "Restrict the query to one specific card only.",
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          }
+        ]
+      },
+      "post": {
+        "description": "Create a new contract\n",
+        "tags": [
+          "contracts"
+        ],
+        "operationId": "createContract",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "The new contract is saved successfully.",
+            "headers": {
+              "location": {
+                "description": "URL of the new contract.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ContractDetails"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/contracts/{contractID}": {
+      "get": {
+        "description": "Retrieves the contract details.",
+        "tags": [
+          "contracts"
+        ],
+        "operationId": "getContract",
+        "responses": {
+          "200": {
+            "description": "Contract details.",
+            "schema": {
+              "$ref": "#/definitions/ContractDetails"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Updates the contract",
+        "tags": [
+          "contracts"
+        ],
+        "operationId": "modifyContract",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "The modified contract is saved successfully."
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/ContractDetails"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "delete": {
+        "description": "Terminates the resource",
+        "tags": [
+          "contracts"
+        ],
+        "operationId": "terminateContract",
+        "responses": {
+          "204": {
+            "description": "The contract is terminated"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "contractID",
+          "required": true
+        }
+      ]
+    },
+    "/accounts": {
+      "get": {
+        "description": "Retrieves the list of the accounts that potentially may back\nthe bank cards of the end customer.\n",
+        "tags": [
+          "accounts"
+        ],
+        "operationId": "getCardAccounts",
+        "responses": {
+          "200": {
+            "description": "List of the accounts that might back a card.\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CardAccount"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "description": "filter the result to those that might support the given card.",
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          },
+          {
+            "description": "filter the result to those that might support the given card type.",
+            "type": "string",
+            "in": "query",
+            "name": "card_type"
+          },
+          {
+            "default": "current",
+            "description": "Use this filter together with the cardId if only the currently\nassigned, or all possible accounts are needed.\nCurrent means the currently assigned accounts.\nUnassigned means those that might be assigned to a card the user\nalready holds, but not currently assigned to any.\nAssignable means all accounts the user may want to assign to a card\nhe already has (current+unassigned).\nAvailable means the accounts that might back a card, but\nthe user has no card that might be backed by these accounts.\nAll means just that, all (assignable+available).\n",
+            "enum": [
+              "current",
+              "unassigned",
+              "assignable",
+              "available",
+              "all"
+            ],
+            "type": "string",
+            "in": "query",
+            "name": "filter"
+          }
+        ]
+      }
+    },
+    "/balances": {
+      "get": {
+        "description": "The balances of the user's card accounts.",
+        "tags": [
+          "balances"
+        ],
+        "operationId": "getBalances",
+        "responses": {
+          "200": {
+            "description": "List of the balances.\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Balance"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "description": "filter the result to the given card.",
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          },
+          {
+            "default": "assignable",
+            "description": "Use this filter together with the cardId if only the currently\nassigned, or all possible accounts are needed.\nCurrent means the currently assigned accounts.\nUnassigned means those that might be assigned to a card the user\nalready holds, but not currently assigned to any.\nAssignable means all accounts the user may want to assign to a card\nhe already has (current+unassigned).\n",
+            "enum": [
+              "current",
+              "unassigned",
+              "assignable",
+              "all"
+            ],
+            "type": "string",
+            "in": "query",
+            "name": "filter"
+          }
+        ]
+      }
+    },
+    "/statements": {
+      "get": {
+        "description": "The statements of the user's card accounts.",
+        "tags": [
+          "statements"
+        ],
+        "operationId": "getStatements",
+        "responses": {
+          "200": {
+            "description": "The list of the statements.\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Statement"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "description": "filter the result to the given card.",
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          },
+          {
+            "description": "The statement period (year + month).",
+            "type": "string",
+            "in": "query",
+            "name": "period"
+          }
+        ]
+      }
+    },
+    "/transactions": {
+      "get": {
+        "description": "Retrieves the transactions of the cards.\n",
+        "tags": [
+          "transactions"
+        ],
+        "operationId": "getTransactions",
+        "responses": {
+          "200": {
+            "description": "The list of the transactions.\n",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Transaction"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "description": "Filter the result to the given card.",
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          },
+          {
+            "description": "Transactions booked from this day on. If this date is missing,\nthen the endDate - 31 days is the default. If the end date is\nmissing too, then the last 31 days are used.\n",
+            "type": "string",
+            "format": "date-time",
+            "in": "query",
+            "name": "start_date"
+          },
+          {
+            "description": "Transactions booked until this day. If this date is missing,\nthen the startDate + 31 days (or startDate until today) is the\ndefault. If the start date is missing too, then the last 31 days\nare used.\n",
+            "type": "string",
+            "format": "date-time",
+            "in": "query",
+            "name": "end_date"
+          },
+          {
+            "description": "The type of the transactions that should be included.\n",
+            "enum": [
+              "booked",
+              "pending",
+              "revoked"
+            ],
+            "type": "string",
+            "in": "query",
+            "name": "type"
+          }
+        ]
+      }
+    },
+    "/transactions/{transactionId}": {
+      "get": {
+        "description": "Retrieve the details of the transaction",
+        "tags": [
+          "transactions"
+        ],
+        "operationId": "getTransactionDetails",
+        "responses": {
+          "200": {
+            "description": "The transaction details.",
+            "schema": {
+              "$ref": "#/definitions/TransactionDetail"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "transactionId",
+          "required": true
+        }
+      ]
+    },
+    "/purchase-transactions": {
+      "post": {
+        "description": "approves or forbids the transaction",
+        "tags": [
+          "purchase-transactions"
+        ],
+        "operationId": "allowPurchaseTransaction",
+        "responses": {
+          "200": {
+            "description": "The purchase transaction is approved."
+          },
+          "403": {
+            "description": "The purchase transaction is prohibited."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/PurchaseTransaction"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/withdraw-transactions": {
+      "post": {
+        "description": "approves or forbids the transaction",
+        "tags": [
+          "withdraw-transactions"
+        ],
+        "operationId": "allowWithdrawTransaction",
+        "responses": {
+          "200": {
+            "description": "The withdraw transaction is approved."
+          },
+          "403": {
+            "description": "The withdraw transaction is prohibited."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/WithdrawTransaction"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/fees": {
+      "get": {
+        "description": "Retrieves the due fees.",
+        "tags": [
+          "fees"
+        ],
+        "operationId": "getFeesDue",
+        "responses": {
+          "200": {
+            "description": "Due fees",
+            "schema": {
+              "$ref": "#/definitions/DueFee"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "in": "query",
+            "name": "card_id"
+          }
+        ]
+      }
+    },
+    "/cards": {
+      "get": {
+        "description": "Retrieves the client's most recent card information.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCards",
+        "responses": {
+          "200": {
+            "description": "List of the most recent cards that belong to the given client.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Card"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "type": "string",
+            "in": "query",
+            "name": "card_status"
+          }
+        ]
+      },
+      "post": {
+        "description": "Stores the newly printed card.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "createCard",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "The new card is saved successfully.",
+            "headers": {
+              "location": {
+                "description": "URL of the new card.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/definitions/CardDetails"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/cards/{cardId}": {
+      "get": {
+        "description": "Retrieves the card details.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCardDetails",
+        "responses": {
+          "200": {
+            "description": "The card details.",
+            "schema": {
+              "$ref": "#/definitions/CardDetails"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          }
+        ]
+      },
+      "patch": {
+        "description": "Updates the card's modifiable parameters",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "updateCardDetails",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "The card is updated.",
+            "headers": {
+              "location": {
+                "description": "URL of the updated card.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/definitions/CardUpdate"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/blocks": {
+      "post": {
+        "description": "Adds new block to the card",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "blockCard",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "The card block is added",
+            "headers": {
+              "location": {
+                "description": "URL of the updated card block.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/CardBlock"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/addresses": {
+      "get": {
+        "description": "Retrieves the specific address associated with the card",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCardAddress",
+        "responses": {
+          "200": {
+            "description": "The card details containing the addresses",
+            "schema": {
+              "$ref": "#/definitions/CardUpdate"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/first-time-pins": {
+      "post": {
+        "description": "Asks to send the first time PIN to the previously agreed phone or email",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "sendFirstTimePin",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "204": {
+            "description": "the first time pin is sent."
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/custom-params": {
+      "get": {
+        "description": "Retrieves the end customer customizable parameters of the card",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCardCustomParams",
+        "responses": {
+          "200": {
+            "description": "The object containing the customizable attributes of the card.",
+            "schema": {
+              "$ref": "#/definitions/CardCustomParams"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Updates the provided customizable parameter(s). For each card, there\nalways only one single customizable parameter object exists.\n",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "setCardCustomParams",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "The customizable parameters are updated successfully."
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/definitions/CardCustomParams"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/usage-rights": {
+      "get": {
+        "description": "Retrieves the usage rights of the card",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCardUsageRights",
+        "responses": {
+          "200": {
+            "description": "The object containing the usage rights of the card.",
+            "schema": {
+              "$ref": "#/definitions/CardUsageRights"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Updates the provided usage rights. For each card, there\nalways only one single usage rights object exists.\n",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "setCardUsageRights",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "The usage rights are updated successfully."
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/definitions/CardUsageRights"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/usage-limits": {
+      "get": {
+        "description": "Retrieves the usage limits of the card",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCardUsageLimits",
+        "responses": {
+          "200": {
+            "description": "The object containing the usage limits of the card.",
+            "schema": {
+              "$ref": "#/definitions/CardUsageLimits"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Updates the provided usage limits. For each card, there\nalways only one single usage limits object exists.\n",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "setCardUsageLimits",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "The usage limits are updated successfully."
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/definitions/CardUsageLimits"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/region-geoblocks": {
+      "get": {
+        "description": "Retrieves the region-level geoblock configuration for a particular card.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getRegionGeoblocks",
+        "responses": {
+          "200": {
+            "description": "List of the region-level geoblock configuration that belong to the given card.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RegionGeoblock"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "post": {
+        "description": "Created the region-level geoblock configuration for a particular card.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "createRegionGeoblock",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "The region-level geoblock configuration is saved successfully.",
+            "headers": {
+              "location": {
+                "description": "URL of the region-level geoblock configurations.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/RegionGeoblockRequest"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/cards/{cardId}/{cardId}/country-geoblocks": {
+      "get": {
+        "description": "Retrieves the country-level geoblock configuration for a particular card.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "getCountryGeoblocks",
+        "responses": {
+          "200": {
+            "description": "List of the country-level geoblock configuration that belong to the given card.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CountryGeoblock"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      },
+      "post": {
+        "description": "Created the country-level geoblock configuration for a particular card.",
+        "tags": [
+          "cards"
+        ],
+        "operationId": "createCountryGeoblock",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "The country-level geoblock configuration is saved successfully.",
+            "headers": {
+              "location": {
+                "description": "URL of the country-level geoblock configurations.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "schema": {
+              "description": "User friendly information about validation errors",
+              "properties": {
+                "code": {
+                  "description": "Unique identifier of the occurred error",
+                  "type": "integer"
+                },
+                "name": {
+                  "description": "Name of the validation error case",
+                  "type": "string"
+                },
+                "message": {
+                  "description": "Short message of the error",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Descriptive text explaining the details and background of the validation error",
+                  "type": "string"
+                },
+                "classification": {
+                  "description": "Classification of the error in case the content holds classified information",
+                  "type": "string"
+                },
+                "additional": {
+                  "description": "List of additional details that might provide information to client",
+                  "type": "array",
+                  "items": {
+                    "description": "Field information in order to identify the cause of validation error",
+                    "properties": {
+                      "field": {
+                        "description": "The name of the field that caused validation error",
+                        "type": "string"
+                      },
+                      "message": {
+                        "description": "Validation error message that belongs to this field only",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request."
+          },
+          "500": {
+            "description": "Internal server error."
+          },
+          "503": {
+            "description": "Server is temporarily not available - retry my help."
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          },
+          {
+            "schema": {
+              "$ref": "#/definitions/CountryGeoblockRequest"
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "in": "path",
+          "name": "cardId",
+          "required": true
+        }
+      ]
+    },
+    "/region-geoblocks": {
+      "get": {
+        "description": "Retrieves the bank-default geoblock configuration for all regions.",
+        "tags": [
+          "region-geoblocks"
+        ],
+        "operationId": "getDefaultRegionGeoblocks",
+        "responses": {
+          "200": {
+            "description": "List of the bank-default geoblock configuration for all regions.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DefaultRegionGeoblock"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      }
+    },
+    "/country-geoblocks": {
+      "get": {
+        "description": "Retrieves the bank-default geoblock configuration for all countries.",
+        "tags": [
+          "country-geoblocks"
+        ],
+        "operationId": "getDefaultCountryGeoblocks",
+        "responses": {
+          "200": {
+            "description": "List of the bank-default geoblock configuration for all countries.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DefaultCountryGeoblock"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "type": "string",
+            "in": "header",
+            "name": "If-Modified-Since"
+          },
+          {
+            "type": "string",
+            "in": "header",
+            "name": "Accept"
+          },
+          {
+            "description": "The request is invalid.",
+            "type": "string",
+            "in": "header",
+            "name": "responses",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/trait:clientaware:X-Client-ID"
+          }
+        ]
+      }
+    }
+  }
+}

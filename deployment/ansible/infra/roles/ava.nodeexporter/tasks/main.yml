@@ -1,0 +1,13 @@
+---
+# Install prometheus-node-exporter on Infra nodes
+- name: Install prometheus-node-exporter  plugin for prometheus
+  package:
+    name: prometheus-node-exporter
+    state: latest
+
+- name: Enable and start prometheus-node-exporter systemd service
+  systemd:
+    name: prometheus-node-exporter
+    state: started
+    enabled: true
+

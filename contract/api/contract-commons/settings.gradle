@@ -1,0 +1,2 @@
+def apiName = 'contract-commons'
+rootProject.name = apiName

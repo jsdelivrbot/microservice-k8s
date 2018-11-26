@@ -1,0 +1,42 @@
+#%RAML 1.0 DataType
+
+types:
+  Address: !include Address.raml
+  Card: !include Card.raml
+  CardAccount: !include CardAccount.raml
+type: Card
+description: Card attributes that might be modified
+properties:
+    accountId:
+        description: The bank account that belongs to a particular card
+        type: CardAccount
+        required: false
+    eActivation:
+        description: |
+            The flag tells whether the user opted for e-activation (receiving
+            the first time pin via SMS or email) instead of the traditional
+            paper-based mailing of the pin.
+        type: boolean
+        required: false
+    mailAddress:
+        description: |
+            The address to that the card should be sent. When empty,
+            it means the user's main home address (CMR) is being used.
+        type: Address
+        required: false
+    pinAddress:
+        description: |
+            The address to that the PIN mail should be sent. When empty,
+            it means the user's main home address (CMR) is being used.
+        type: Address
+        required: false
+    invoiceAddress:
+        description: |
+            The address to that the invoice should be sent. When empty,
+            it means the user's main home address (CMR) is being used.
+        type: Address
+        required: false
+    activated:
+        description: The flag showing whether the card is activated or not.
+        type: boolean
+        required: false

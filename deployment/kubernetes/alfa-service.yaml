@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alfa-service
+  labels:
+    run: alfa-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: alfa-service
+    spec:
+      containers:
+      - name: alfa-service
+        image: avaloq/alfa-service
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alfa-service
+spec:
+  selector:
+    run: alfa-service
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort

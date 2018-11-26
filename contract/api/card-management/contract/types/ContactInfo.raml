@@ -1,0 +1,20 @@
+#%RAML 1.0 DataType
+
+description: Contact information
+properties:
+  address:
+    description: Postal address
+    type: Address
+    required: false
+  voicePhone:
+    description: Phone number to receive voice messages
+    type: PhoneNumber
+    required: false
+  smsPhone:
+    description: Phone number to receive SMS messages
+    type: PhoneNumber
+    required: false
+  email:
+    description: EMail address to receive messages
+    type: string
+    required: false
