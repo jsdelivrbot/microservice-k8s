@@ -1,0 +1,74 @@
+buildscript {
+    repositories.addAll(extRepos)
+
+    ext {
+		appVersioningPluginVersion = '1.0.0-SNAPSHOT'
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+    }
+
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+        classpath "com.epam.gradle:app-versioning-gradle-plugin:$appVersioningPluginVersion"
+    }
+}
+
+apply plugin: 'external_script'
+apply plugin: 'app_versioning'
+
+ext {
+    commonVersion = '2.0.0-SNAPSHOT'
+    
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+group 'com.epam'
+version '1.0.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+apply plugin: 'io.spring.dependency-management'
+apply from: "${commonScriptLocation}/bill-of-materials.gradle"
+apply from: "${commonScriptLocation}/deploy.gradle"
+apply from: "${commonScriptLocation}/sonar.gradle"
+
+ext {
+    reportPortalCoreVersion = '3.1.0'
+    reportPortalTestNGVersion = '3.0.6'
+    reportPortalLogbackVersion = '3.0.0'
+
+    apacheJMeterCoreVersion = '3.3'
+}
+
+dependencies {
+    compile "org.projectlombok:lombok"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    compile ("org.springframework.boot:spring-boot-starter-data-jpa"){
+        exclude group: 'org.hibernate'
+    }
+    compile "org.hibernate:hibernate-core"
+
+    compile "org.springframework.boot:spring-boot-starter-test"
+    compile "org.testng:testng:"
+    compile "org.mockito:mockito-core:"
+    compile "io.rest-assured:rest-assured"
+    compile "io.rest-assured:json-path"
+    compile "com.jayway.jsonpath:json-path"
+    compile "org.skyscreamer:jsonassert"
+
+    compile "com.epam.reportportal:commons:$reportPortalCoreVersion"
+    compile "com.epam.reportportal:agent-java-testng:$reportPortalTestNGVersion"
+    compile "com.epam.reportportal:logger-java-logback:$reportPortalLogbackVersion"
+
+    compile("org.apache.jmeter:ApacheJMeter_core:$apacheJMeterCoreVersion") {
+        exclude group: 'org.mongodb'
+    }
+    compile("org.apache.jmeter:ApacheJMeter_http:$apacheJMeterCoreVersion") {
+        exclude group: 'org.mongodb'
+    }
+}
+
+task allDeps(type: DependencyReportTask) {
+
+}
