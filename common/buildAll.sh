@@ -120,9 +120,9 @@ cd $SCRIPTPATH/../libraries/oas-generator-template
 commandName="Building oas-generator-template"
 runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
 
-cd $SCRIPTPATH/../libraries/raml-oas-converter-gradle-plugin
-commandName="Building raml-oas-converter-gradle-plugin"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
+#cd $SCRIPTPATH/../libraries/raml-oas-converter-gradle-plugin
+#commandName="Building raml-oas-converter-gradle-plugin"
+#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
 
 #cd $SCRIPTPATH/../ava-api-contract/events/account-events
 #commandName="Generating and building kafka events for account service"
