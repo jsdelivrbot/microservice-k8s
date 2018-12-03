@@ -2,6 +2,11 @@
 
 ## Prerequisites
 
+Java8
+Gradle latest
+Docker for Windows with Kubernetes
+Git bash
+
 Clone all project into a workspace folder.
 
 The file `./ava-api-common/scripts/init.gradle` must be copied to your GRADLE_USER_HOME directory. [Gradle - Build Environment](https://docs.gradle.org/current/userguide/build_environment.html)
@@ -13,7 +18,7 @@ The `init.gradle` must contain the following lines:
 - `artifactory_contextUrl=https://artifactory.epam.com/artifactory`
 
 In all Gradle-based modules the wrapper must be initialized, and later pushed to Git:
-gradle wrapper --distribution-type=all --gradle-version=4.5.1
+gradle wrapper --distribution-type=all --gradle-version=5.0
 
 ## Swagger template
 

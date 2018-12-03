@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.UUID;
 
-@Getter
+//@Getter
 public class ApiException extends RuntimeException {
 
     private UUID uuid;
@@ -17,5 +17,17 @@ public class ApiException extends RuntimeException {
         this.uuid = UUID.randomUUID();
         this.httpStatus = httpStatus;
         this.code = code;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

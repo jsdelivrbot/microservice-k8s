@@ -22,13 +22,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ApiException.class})
     public ResponseEntity<Object> handleApiException(ApiException ex, WebRequest request) {
 
-        LOG.error(String.format("API exception [%s]", ex.getUuid()), ex);
+        //LOG.error(String.format("API exception [%s]", ex.getUuid()), ex);
 
-        ApiError apiError = ApiError.builder()
-                .statusCode(ex.getHttpStatus())
-                .message(ex.getMessage())
-                .info(String.format("error ID: %s", ex.getUuid()))
-                .build();
+//        ApiError apiError = ApiError.builder()
+//                .statusCode(ex.getHttpStatus())
+//                .message(ex.getMessage())
+//                .info(String.format("error ID: %s", ex.getUuid()))
+//                .build();
+
+        ApiError apiError = new ApiError(
+                ex.getHttpStatus()
+                ,ex.getMessage()
+                ,String.format("error ID: %s", ex.getUuid())
+                );
 
         ApiErrors apiErrors = new ApiErrors();
         apiErrors.addError(apiError);
@@ -41,13 +47,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         UUID uuid = UUID.randomUUID();
 
-        LOG.error(String.format("Server side exception [%s]", uuid), ex);
+        //LOG.error(String.format("Server side exception [%s]", uuid), ex);
 
-        ApiError apiError = ApiError.builder()
-                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                .message(ex.getMessage())
-                .info(String.format("error ID: %s", uuid))
-                .build();
+//        ApiError apiError = ApiError.builder()
+//                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .message(ex.getMessage())
+//                .info(String.format("error ID: %s", uuid))
+//                .build();
+        ApiError apiError = new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR
+                ,ex.getMessage()
+                ,String.format("error ID: %s", uuid)
+                );
 
         ApiErrors apiErrors = new ApiErrors();
         apiErrors.addError(apiError);
@@ -60,13 +71,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         UUID uuid = UUID.randomUUID();
 
-        LOG.error(String.format("Server side exception [%s]", uuid), ex);
+        //LOG.error(String.format("Server side exception [%s]", uuid), ex);
 
-        ApiError apiError = ApiError.builder()
-                .statusCode(status)
-                .message(ex.getMessage())
-                .info(String.format("error ID: %s", uuid))
-                .build();
+//        ApiError apiError = ApiError.builder()
+//                .statusCode(status)
+//                .message(ex.getMessage())
+//                .info(String.format("error ID: %s", uuid))
+//                .build();
+
+        ApiError apiError = new ApiError(
+                status
+                ,ex.getMessage()
+                ,String.format("error ID: %s", uuid)
+                );
 
         ApiErrors apiErrors = new ApiErrors();
         apiErrors.addError(apiError);

@@ -1,0 +1,123 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="15-create-contract-details-table" author="balazs_bekesi@epam.com">
+        <comment>Create contract table</comment>
+
+        <createTable tableName="contract">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="contract_id" type="varchar(255)"/>
+            <column name="client_id" type="varchar(255)"/>
+            <column name="account_id" type="varchar(255)"/>
+            <column name="card_id" type="varchar(255)"/>
+            <column name="document_id" type="varchar(255)"/>
+            <column name="e_activation" type="boolean"/>
+
+            <column name="offer_id" type="bigint"/>
+            <column name="contact_info" type="bigint"/>
+
+        </createTable>
+    </changeSet>
+
+    <changeSet id="16-create-card-offer-table" author="balazs_bekesi@epam.com">
+        <comment>Create card offer table</comment>
+
+        <createTable tableName="card_offer">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="card_offer_id" type="varchar(255)"/>
+            <column name="card_type" type="varchar(255)"/>
+            <column name="signature" type="varchar(255)"/>
+            <column name="condition_id" type="varchar(255)"/>
+            <column name="card_fee_id" type="bigint"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="17-create-address-table" author="balazs_bekesi@epam.com">
+        <comment>Create address table</comment>
+
+        <createTable tableName="address">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="country" type="varchar(255)"/>
+            <column name="state" type="varchar(255)"/>
+            <column name="city" type="varchar(255)"/>
+            <column name="street1" type="varchar(255)"/>
+            <column name="street2" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="18-create-amount-table" author="balazs_bekesi@epam.com">
+        <comment>Create amount table</comment>
+
+        <createTable tableName="amount">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="currency" type="varchar(255)"/>
+            <column name="amount" type="double"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="19-create-card_fee-table" author="balazs_bekesi@epam.com">
+        <comment>Create card_fee table</comment>
+
+        <createTable tableName="card_fee">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="yearly_fee_amount_id" type="bigint"/>
+            <column name="monthly_fee_amount_id" type="bigint"/>
+            <column name="debt_interest_rate" type="double"/>
+            <column name="credit_interest_rate" type="double"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20-create-contact-info-table" author="balazs_bekesi@epam.com">
+        <comment>Create contact_info table</comment>
+
+        <createTable tableName="contact_info">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="address_id" type="bigint"/>
+            <column name="phone_number_id" type="bigint"/>
+            <column name="sms_number_id" type="bigint"/>
+            <column name="email" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="21-create-contract-contact-info-table" author="balazs_bekesi@epam.com">
+        <comment>Create contract-contact-info table</comment>
+
+        <createTable tableName="contract_contact_info">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="contract_entity_id" type="bigint"/>
+            <column name="contact_info_id" type="bigint"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="22-create-phone-number-table" author="balazs_bekesi@epam.com">
+        <comment>Create phone_number table</comment>
+
+        <createTable tableName="phone_number">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="country_code" type="varchar(255)"/>
+            <column name="area_code" type="varchar(255)"/>
+            <column name="phone_number" type="varchar(255)"/>
+            <column name="extension" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

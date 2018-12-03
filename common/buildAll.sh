@@ -112,96 +112,15 @@ cd $SCRIPTPATH/../libraries/app-versioning-gradle-plugin
 commandName="Building app-versioning-gradle-plugin"
 runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
 
-cd $SCRIPTPATH/../test-common
-commandName="Building ava-api-test-common"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-cd $SCRIPTPATH/../libraries/oas-generator-template
-commandName="Building oas-generator-template"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../libraries/raml-oas-converter-gradle-plugin
-#commandName="Building raml-oas-converter-gradle-plugin"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-contract/events/account-events
-#commandName="Generating and building kafka events for account service"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-libraries/kafka-event-base
-#commandName="Building kafka-event-base"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-libraries/kafka-connector
-#commandName="Building kafka-connector"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
 cd $SCRIPTPATH/../libraries/service-base
 commandName="Building service-base"
 runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
 
-# Must be placed before any contract build step
-cd $SCRIPTPATH/../contract/api/contract-commons
-commandName="Generating common contract type/resource/trait artifact"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-contract/api/acp-account
-#commandName="Generating and building acp-account contract related artifacts"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-cd $SCRIPTPATH/../contract/api/external
-commandName="Generating and building external contract related artifacts"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-cd $SCRIPTPATH/../contract/api/card-management
-commandName="Generating and building card-management contract related artifacts"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-contract/api/account
-#commandName="Generating and building 	account contract related artifacts"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-contract/api/exchange-rate
-#commandName="Generating and building exchange rate contract related artifacts"
-#runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-#cd $SCRIPTPATH/../ava-api-acp/
-#commandName="Building acp"
-#runwithstatus "$commandName" ./gradlew clean build $executeTests
-
-#cd $SCRIPTPATH/../ava-api-account-service
-#commandName="Building account service"
-#runwithstatus "$commandName" ./gradlew clean build $executeTests
-
-#cd $SCRIPTPATH/../ava-api-exchange-rate-service/
-#commandName="Building exchange-rate-service"
-#runwithstatus "$commandName" ./gradlew clean build $executeTests
-
-cd $SCRIPTPATH/../external-mock
-commandName="Building external mock service"
-runwithstatus "$commandName" ./gradlew clean build $executeTests publishToMavenLocal
-commandName="Creating docker image for card management service"
-runwithstatus "$commandName" docker image build . -t epam.com/external-mock-service
-
-
-cd $SCRIPTPATH/../card-management
-commandName="Building card management service"
+cd $SCRIPTPATH/../rulerunner
+commandName="Building rule runner service"
 runwithstatus "$commandName" ./gradlew clean build $executeTests
-commandName="Creating docker image for card management service"
-runwithstatus "$commandName" docker image build . -t epam.com/card-management-service
-
-#cd $SCRIPTPATH/../ava-api-account-service
-#commandName="Creating docker image for account service"
-#runwithstatus "$commandName" docker image build . -t epam.com/account-service
-
-#cd $SCRIPTPATH/../ava-api-acp
-#commandName="Creating docker image for acp"
-#runwithstatus "$commandName" docker image build . -t epam.com/acp
-
-#cd $SCRIPTPATH/../ava-api-exchange-rate-service
-#commandName="Creating docker image for exchange-rate service"
-#runwithstatus "$commandName" docker image build . -t epam.com/exchange-rate-service
-
+commandName="Creating docker image for rule runner service"
+runwithstatus "$commandName" docker image build . -t epam.com/rulerunner-service
 
 echo
 getStatusString "Overall status" "$overallStatus" "overAllStatusString"

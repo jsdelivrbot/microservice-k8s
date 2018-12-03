@@ -15,7 +15,7 @@ buildscript {
 apply plugin: 'external_script'
 
 ext {
-    commonVersion = '2.0.0-SNAPSHOT'
+    commonVersion = '1.0.0-SNAPSHOT'
 
     commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
 }
@@ -24,7 +24,7 @@ apply from: "${commonScriptLocation}/common-lib.gradle"
 
 
 group 'com.epam'
-version '2.0.0-SNAPSHOT'
+version '1.0.0-SNAPSHOT'
 
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'

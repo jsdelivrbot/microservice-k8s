@@ -1,0 +1,110 @@
+buildscript {
+    repositories.addAll(extRepos)
+
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE'
+    }
+}
+
+ext {
+    // TODO: Set versions when a global location is available
+    appVersioningVersion = '1.0.0-SNAPSHOT'
+    billOfMaterialsVersion = '1.0.0-SNAPSHOT'
+    staticAnalysisVersion = '1.0.0-SNAPSHOT'
+    jacocoVersion = '1.0.0-SNAPSHOT'
+}
+
+apply from: "${commonScriptLocation}/app-versioning.gradle"
+apply from: "${commonScriptLocation}/bill-of-materials.gradle"
+apply from: "${commonScriptLocation}/deploy.gradle"
+apply from: "${commonScriptLocation}/static-analysis.gradle"
+//apply from: "${commonScriptLocation}/cucumber.gradle"
+//apply from: "${commonScriptLocation}/test.gradle"
+//apply from: "${commonScriptLocation}/jacoco.gradle"
+//apply from: "${commonScriptLocation}/sonar.gradle"
+
+
+allprojects {
+
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    
+    dependencies {
+        // Lombok
+        compile "org.projectlombok:lombok"
+
+        // SpringBoot Web
+        compile "org.springframework.boot:spring-boot-starter-web"
+        compile "org.springframework.boot:spring-boot-starter-undertow"
+        compile "org.springframework.boot:spring-boot-starter-actuator"
+        //compile "org.springframework.cloud:spring-cloud-starter-openfeign"
+
+        // SpringBoot AOP
+        compile "org.springframework.boot:spring-boot-starter-aop"
+
+        // SpringBoot Cache
+        compile "org.springframework.boot:spring-boot-starter-cache"
+
+        //SpringBoot Data
+        compile ('org.springframework.boot:spring-boot-starter-data-jpa'){
+            exclude group: 'org.hibernate'
+        }
+        compile "org.hibernate:hibernate-core"
+
+        //Cloud
+        //compile 'org.springframework.cloud:spring-cloud-starter-config'
+        //compile 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
+
+        // Database
+        //compile "org.postgresql:postgresql"
+        compile "com.zaxxer:HikariCP"
+
+        compile 'commons-collections:commons-collections'
+
+        // Logging
+        compile 'ch.qos.logback:logback-classic'
+        compile 'ch.qos.logback:logback-core'
+        compile 'org.slf4j:log4j-over-slf4j'
+        compile 'org.slf4j:jcl-over-slf4j'
+        compile 'org.apache.logging.log4j:log4j-api'
+        compile 'org.slf4j:slf4j-api'
+
+        // Service basic features
+        compile 'com.epam:service-base'
+        //compile 'com.google.protobuf:protobuf-java'
+        // Test
+        //testCompile "org.hamcrest:java-hamcrest"
+        //testCompile "com.shazam:shazamcrest"
+        //testCompile "io.rest-assured:spring-mock-mvc"
+//        testCompile "io.rest-assured:json-path"
+        //testCompile "io.cucumber:cucumber-java"
+        //testCompile "io.cucumber:cucumber-jvm"
+        //testCompile "io.cucumber:cucumber-spring"
+
+    }
+
+    configurations {
+        compile.exclude group: "org.apache.tomcat"
+        compile.exclude module: "spring-boot-starter-tomcat"
+    }
+
+    bootRun {
+        jvmArgs = jvmArgs
+    }
+
+    project.tasks.publishToMavenLocal {
+        dependsOn assemble
+        dependsOn build
+    }
+
+    project.tasks.artifactoryPublish {
+        dependsOn assemble
+        dependsOn build
+    }
+}
+
+task 'gitHookConfig'{
+    println "git config --unset-all core.hookspath".execute().text
+    println "git config core.hooksPath ${commonScriptLocation}/service-hooks --local".execute().text
+}

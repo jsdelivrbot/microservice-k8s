@@ -33,7 +33,7 @@ public class PropertiesLoaderListener extends BaseTestNGListener {
 
     private static void setupReportPortalProperties(Binder binder) {
         String testEnvironmentName = Constants.validateAndGetTestEnvironment();
-        log.info("Environment set to: " + testEnvironmentName);
+        LOG.info("Environment set to: " + testEnvironmentName);
         if (!testEnvironmentName.equals(Constants.DEFAULT_ENV)) {
             String testType = Constants.validateAndGetTestType();
             String[] testTargets = Constants.validateAndGetTestTargets();

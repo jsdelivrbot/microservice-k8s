@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'external_script'
 
 ext {
-    commonVersion = '2.0.0-SNAPSHOT'
+    commonVersion = '1.0.0-SNAPSHOT'
 
     commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
 }

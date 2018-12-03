@@ -1,0 +1,61 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="12-create-card-details-mail-address-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create CARD_DETAILS_MAIL_ADDRESS table</comment>
+
+        <createTable tableName="card_details_mail_address">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="country" type="varchar(255)"/>
+            <column name="state" type="varchar(255)"/>
+            <column name="city" type="varchar(255)"/>
+            <column name="street1" type="varchar(255)"/>
+            <column name="street2" type="varchar(255)"/>
+            <column name="card_id" type="bigint">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="13-create-card-details-pin-address-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create CARD_DETAILS_PIN_ADDRESS table</comment>
+
+        <createTable tableName="card_details_pin_address">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="country" type="varchar(255)"/>
+            <column name="state" type="varchar(255)"/>
+            <column name="city" type="varchar(255)"/>
+            <column name="street1" type="varchar(255)"/>
+            <column name="street2" type="varchar(255)"/>
+            <column name="card_id" type="bigint">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="14-create-card-details-invoice-address-table" author="attila_kristof_foldi@epam.com">
+        <comment>Create CARD_DETAILS_INVOICE_ADDRESS table</comment>
+
+        <createTable tableName="card_details_invoice_address">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"></constraints>
+            </column>
+            <column name="country" type="varchar(255)"/>
+            <column name="state" type="varchar(255)"/>
+            <column name="city" type="varchar(255)"/>
+            <column name="street1" type="varchar(255)"/>
+            <column name="street2" type="varchar(255)"/>
+            <column name="card_id" type="bigint">
+                <constraints nullable="false"></constraints>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

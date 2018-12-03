@@ -6,10 +6,10 @@ apply from: "${commonScriptLocation}/app-versioning.gradle"
 apply from: "${commonScriptLocation}/bill-of-materials.gradle"
 apply from: "${commonScriptLocation}/static-analysis.gradle"
 apply from: "${commonScriptLocation}/deploy.gradle"
-apply from: "${commonScriptLocation}/cucumber.gradle"
-apply from: "${commonScriptLocation}/test.gradle"
-apply from: "${commonScriptLocation}/jacoco.gradle"
-apply from: "${commonScriptLocation}/sonar.gradle"
+//apply from: "${commonScriptLocation}/cucumber.gradle"
+//apply from: "${commonScriptLocation}/test.gradle"
+//apply from: "${commonScriptLocation}/jacoco.gradle"
+//apply from: "${commonScriptLocation}/sonar.gradle"
 
 allprojects {
 

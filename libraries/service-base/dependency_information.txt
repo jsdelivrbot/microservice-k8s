@@ -1,4 +1,0 @@
-com.epam:ava-api-common:1.3.0-SNAPSHOT
-com.epam.contract.api:contract-commons:1.1.0-SNAPSHOT
-com.epam.gradle:external-script-gradle-plugin:1.0.2-SNAPSHOT
-com.epam.oas:raml-oas-converter-gradle-plugin:1.0.0-SNAPSHOT

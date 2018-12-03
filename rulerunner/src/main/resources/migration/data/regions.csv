@@ -1,0 +1,9 @@
+id,code,name,display_name,blocked_by_default,customizable
+1,1,EUROPE,Europe,FALSE,TRUE
+2,2,CIS,"Russia and Former CIS",TRUE,TRUE
+3,3,AFRICA,Africa,TRUE,TRUE
+4,4,NA,"Canada, the United States, and Greenland",FALSE,TRUE
+5,5,LATAM,Latin America and Caribbean,FALSE,TRUE
+6,6,ME,Middle East,TRUE,FALSE
+7,7,APAC,"Asia, Pacific and Australia",FALSE,TRUE
+8,8,MEZOAM,Mezoamerica,FALSE,TRUE

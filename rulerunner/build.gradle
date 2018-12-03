@@ -1,0 +1,55 @@
+buildscript {
+    repositories.addAll(extRepos)
+    ext {
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+    }
+    dependencies {
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE'
+    }
+}
+
+apply plugin: 'external_script'
+
+ext {
+    apiName = 'card-management'
+    apiVersion = '1.0.0-SNAPSHOT'
+    commonVersion = '1.0.0-SNAPSHOT'
+    externalMockVersion = '1.0.0-SNAPSHOT'
+    jvmArgs = '-Xmx512M'
+    liquibaseVersion = '3.5.5'
+    liquibaseLogger2Slf4jVersion = '1.2.1'
+    h2DbVersion = '1.4.194'
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+group 'com.epam.rulerunner'
+version '1.0.0-SNAPSHOT'
+
+apply from: "${commonScriptLocation}/common-broadridge-base-service.gradle"
+apply plugin: 'project-report'
+
+
+dependencies {
+//    compile "com.epam.contract.api.${apiName}:${apiName}-java-server-spring:${apiVersion}"
+//    compile "com.epam.contract.api.${apiName}:${apiName}-java-client-feign:${apiVersion}"
+
+//    compile "com.epam.external.mock:external-mock:${externalMockVersion}"
+
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
+    compile "org.liquibase:liquibase-core:${liquibaseVersion}"
+    compile "com.mattbertolini:liquibase-slf4j:${liquibaseLogger2Slf4jVersion}"
+    compile "com.h2database:h2:${h2DbVersion}"
+
+    compile "io.github.benas:random-beans:3.7.0"
+
+//    testCompile "com.epam:test-common:1.0.0-SNAPSHOT"
+
+//    compile "io.springfox:springfox-swagger-ui:2.0.2"
+//    compile "io.springfox:springfox-swagger-common:2.8.0"
+//    compile "io.springfox:springfox-spring-web:2.0.1"
+
+    compile "commons-io:commons-io:2.6"
+}

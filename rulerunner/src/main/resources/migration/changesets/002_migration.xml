@@ -1,0 +1,50 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+   http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+
+    <!--TODO: update cards.csv with extended data set-->
+    <!--<changeSet id="9-load-cards-data" author="balazs_bekesi@epam.com">-->
+        <!--<comment>Load cards from csv</comment>-->
+        <!--<loadData catalogName="catalog"-->
+                  <!--encoding="UTF-8"-->
+                  <!--file="migration/data/cards.csv"-->
+                  <!--quotchar="&quot;"-->
+                  <!--schemaName="public"-->
+                  <!--separator=","-->
+                  <!--tableName="card">-->
+        <!--</loadData>-->
+    <!--</changeSet>-->
+
+    <changeSet id="10-load-regions-data" author="attila_kristof_foldi@epam.com">
+        <comment>Load regions from csv</comment>
+
+        <loadData catalogName="catalog"
+                  encoding="UTF-8"
+                  file="migration/data/regions.csv"
+                  quotchar="&quot;"
+                  schemaName="public"
+                  separator=","
+                  tableName="region">
+        </loadData>
+    </changeSet>
+
+    <changeSet id="11-load-countries-data" author="attila_kristof_foldi@epam.com">
+        <comment>Load regions from csv</comment>
+
+        <loadData catalogName="catalog"
+                  encoding="UTF-8"
+                  file="migration/data/countries.csv"
+                  quotchar="&quot;"
+                  schemaName="public"
+                  separator=","
+                  tableName="country">
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>

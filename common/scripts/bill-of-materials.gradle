@@ -51,7 +51,7 @@ ext {
 
     sleuthZipkinVersion = '1.2.5.RELEASE'
 
-    serviceBaseVersion = '2.0.0-SNAPSHOT'
+    serviceBaseVersion = '1.0.0-SNAPSHOT'
 
 
     springBootBomVersion = '2.1.0.RELEASE'

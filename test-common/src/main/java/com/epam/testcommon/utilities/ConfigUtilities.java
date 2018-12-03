@@ -78,7 +78,7 @@ public class ConfigUtilities {
             InputStream inputStream = classloader.getResourceAsStream(propertiesFileName);
             prop.load(inputStream);
         } catch (IOException e) {
-            log.error("Error loading the " + propertiesFileName + " file", e);
+            LOG.error("Error loading the " + propertiesFileName + " file", e);
         }
         return prop;
     }

@@ -75,12 +75,12 @@ public class Constants {
     public static String validateAndGetVariable(String[] validValues, String environmentVariableName, String toValidate) {
         String validNamesText = StringUtils.join(validValues, ", ");
         if (null == toValidate || toValidate.isEmpty()) {
-            log.error("Missing environment variable '" + environmentVariableName + "' (possible values: "
+            LOG.error("Missing environment variable '" + environmentVariableName + "' (possible values: "
                     + validNamesText
                     + ")");
             System.exit(1);
         } else if (!ArrayUtils.contains(validValues, toValidate)) {
-            log.error(
+            LOG.error(
                     "Invalid value for environment variable '" + environmentVariableName + "' (possible values: "
                             + validNamesText +
                             ") " +

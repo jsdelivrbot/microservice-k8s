@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
         classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
         classpath "com.epam.gradle:app-versioning-gradle-plugin:$appVersioningPluginVersion"
     }
@@ -43,6 +43,13 @@ ext {
 
 dependencies {
     compile "org.projectlombok:lombok"
+	compile 'ch.qos.logback:logback-classic'
+	compile 'ch.qos.logback:logback-core'
+	compile 'org.slf4j:log4j-over-slf4j'
+	compile 'org.slf4j:jcl-over-slf4j'
+	compile 'org.apache.logging.log4j:log4j-api'
+	compile 'org.slf4j:slf4j-api'
+	
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     compile ("org.springframework.boot:spring-boot-starter-data-jpa"){
         exclude group: 'org.hibernate'
