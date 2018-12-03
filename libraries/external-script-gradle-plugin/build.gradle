@@ -48,7 +48,7 @@ publishing {
     }
 }
 
-artifactory {
+/*artifactory {
     publish {
         contextUrl = artifactory_contextUrl
         repository {
@@ -66,4 +66,4 @@ artifactory {
     resolve {
         repoKey = artifactory_repo_key
     }
-}
+}*/
