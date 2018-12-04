@@ -9,13 +9,13 @@ Git bash
 
 Clone all project into a workspace folder.
 
-The file `./ava-api-common/scripts/init.gradle` must be copied to your GRADLE_USER_HOME directory. [Gradle - Build Environment](https://docs.gradle.org/current/userguide/build_environment.html)
+The file `./common/scripts/init.gradle` must be copied to your GRADLE_USER_HOME directory. [Gradle - Build Environment](https://docs.gradle.org/current/userguide/build_environment.html)
 The `init.gradle` must contain the following lines:
 
-- `commonScriptLocation=c:/ ... /ava-api/common/scripts`
-- `artifactory_user=john_doe@epam.com`
-- `artifactory_password=AP8sfBR7jtZawxjMUvunJ6prGrj`
-- `artifactory_contextUrl=https://artifactory.epam.com/artifactory`
+- `commonScriptLocation=c:/ ... /common/scripts`
+- `artifactory_user=john_doe@acme.com`
+- `artifactory_password=******`
+- `artifactory_contextUrl=*******`
 
 In all Gradle-based modules the wrapper must be initialized, and later pushed to Git:
 gradle wrapper --distribution-type=all --gradle-version=5.0

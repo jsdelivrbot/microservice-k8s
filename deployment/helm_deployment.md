@@ -14,7 +14,7 @@ This command installs Tiller (the Helm server-side component) onto your Kubernet
 
 ## Deploying and deleting Helm charts
 
-Open a Git Bash and navigate to ./ava-api-deployment/helm/charts.
+Open a Git Bash and navigate to ./deployment/helm/charts.
 The particular charts are separated based on their use case, reflecting infrastructural or business purposes.
 Each chart contains the necessary Kubernetes items to be deployed (deployment, service, ingress, configmap, etc.)
 
