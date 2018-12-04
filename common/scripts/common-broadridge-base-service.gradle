@@ -105,6 +105,6 @@ allprojects {
 }
 
 task 'gitHookConfig'{
-    println "git config --unset-all core.hookspath".execute().text
-    println "git config core.hooksPath ${commonScriptLocation}/service-hooks --local".execute().text
+    //println "git config --unset-all core.hookspath".execute().text
+    //println "git config core.hooksPath ${commonScriptLocation}/service-hooks --local".execute().text
 }
