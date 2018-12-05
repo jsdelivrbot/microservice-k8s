@@ -36,7 +36,7 @@ public class OrdersAdapter implements OrdersApiDelegate {
     public ResponseEntity<Order> getOrders(Long orderId) {
         Optional<Order> order = orderService.getOrder(orderId);
 
-        return order.isPresent() ? ResponseEntity.ok(order.get()) : (ResponseEntity<Order>) ResponseEntity.notFound();
+        return order.isPresent() ? ResponseEntity.ok(order.get()) : ResponseEntity.notFound().build();
     }
 
     private <T> ResponseEntity<T> notImplemented() {
