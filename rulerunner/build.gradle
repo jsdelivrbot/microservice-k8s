@@ -13,8 +13,8 @@ buildscript {
 apply plugin: 'external_script'
 
 ext {
-    apiName = 'card-management'
-    apiVersion = '1.0.0-SNAPSHOT'
+//    apiName = 'card-management'
+//    apiVersion = '1.0.0-SNAPSHOT'
     commonVersion = '1.0.0-SNAPSHOT'
     externalMockVersion = '1.0.0-SNAPSHOT'
     jvmArgs = '-Xmx512M'

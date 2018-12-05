@@ -6,8 +6,5 @@
 
   <include file="classpath:migration/changesets/001_migration.xml"/>
   <include file="classpath:migration/changesets/002_migration.xml"/>
-  <include file="classpath:migration/changesets/003_migration.xml"/>
-  <include file="classpath:migration/changesets/004_migration.xml"/>
-  <include file="classpath:migration/changesets/005_migration.xml"/>
 
 </databaseChangeLog>

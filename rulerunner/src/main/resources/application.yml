@@ -41,7 +41,7 @@ scheduler:
 
 timezone: UTC
 
-cardManagement_:
+rulerunner_:
   url: http://localhost:8080
   name: http://localhost:8080
 
