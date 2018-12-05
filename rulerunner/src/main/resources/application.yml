@@ -24,8 +24,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-liquibase:
-  change-log: classpath:migration/card-management-liquibase-changelog.xml
+  liquibase:
+    change-log: classpath:migration/order-management-liquibase-changelog.xml
 logging:
   pattern:
     console: "%date{ISO8601} [%thread] %level %logger - %msg%n"
