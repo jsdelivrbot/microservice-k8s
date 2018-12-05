@@ -60,6 +60,9 @@ allprojects {
         //compile "org.postgresql:postgresql"
         compile "com.zaxxer:HikariCP"
 
+        compile "org.liquibase:liquibase-core"
+        compile "com.mattbertolini:liquibase-slf4j"
+
         compile 'commons-collections:commons-collections'
 
         // Logging

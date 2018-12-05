@@ -5,7 +5,6 @@ import com.epam.rulerunner.order.converter.OrderEntityToOrderConverter;
 import com.epam.rulerunner.order.converter.OrderToOrderEntityConverter;
 import com.epam.rulerunner.order.repository.OrdersRepository;
 import com.epam.rulerunner.order.server.OrdersAdapter;
-import com.epam.rulerunner.order.server.OrdersApiController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
@@ -13,10 +12,10 @@ import org.springframework.core.convert.ConversionService;
 @Configuration
 public class OrdersConfig {
 
-    @Bean
-    public OrdersApiController ordersApiController(OrdersAdapter ordersAdapter) {
-        return new OrdersApiController(ordersAdapter);
-    }
+//    @Bean
+//    public OrdersApiController ordersApiController(OrdersAdapter ordersAdapter) {
+//        return new OrdersApiController(ordersAdapter);
+//    }
 
     @Bean
     public OrdersAdapter ordersAdapter(OrdersService ordersService) {

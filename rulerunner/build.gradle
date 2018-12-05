@@ -18,8 +18,8 @@ ext {
     commonVersion = '1.0.0-SNAPSHOT'
     externalMockVersion = '1.0.0-SNAPSHOT'
     jvmArgs = '-Xmx512M'
-    liquibaseVersion = '3.5.5'
-    liquibaseLogger2Slf4jVersion = '1.2.1'
+    //liquibaseVersion = '3.6.2'
+    //liquibaseLogger2Slf4jVersion = '1.2.1'
     h2DbVersion = '1.4.194'
     commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
 }
@@ -39,8 +39,6 @@ dependencies {
 
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 
-    compile "org.liquibase:liquibase-core:${liquibaseVersion}"
-    compile "com.mattbertolini:liquibase-slf4j:${liquibaseLogger2Slf4jVersion}"
     compile "com.h2database:h2:${h2DbVersion}"
 
     compile "io.github.benas:random-beans:3.7.0"
