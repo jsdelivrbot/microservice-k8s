@@ -170,6 +170,9 @@ imposter/*.jar
 imposter/rest-api.yml
 file-uploads/
 **/.vertx/
+/libraries/app-versioning-gradle-plugin/gradle/
+/libraries/external-script-gradle-plugin/gradle/
+/libraries/service-base/gradle/
 
 # nohup command output file added
 nohup.out
