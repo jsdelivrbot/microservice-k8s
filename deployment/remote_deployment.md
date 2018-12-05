@@ -13,7 +13,7 @@ clusters:
 contexts:
 - context:
     cluster: cluster.local
-    namespace: ava-api-dev
+    namespace: api-dev
     user: admin-cluster.local
   name: admin-cluster.local
 current-context: admin-cluster.local
@@ -31,15 +31,15 @@ When you have the deployable docker image you have to push it to our artifactory
 Login (before your minikube is started):
 
 ```
-docker login -u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD artifactory.epam.com:6018
+docker login -u $ARTIFACTORY_USER -p $ARTIFACTORY_PASSWORD artifactory.***.com:6018
 ```
 Tag your image (after your minikube is started and eval $(minikube docker-env) is executed):
 ```
-docker tag avaloq/account-service:latest artifactory.epam.com:6018/ava-api-account-service:1.0.0-SNAPSHOT
+docker tag account-service:latest artifactory.***.com:6018/api-account-service:1.0.0-SNAPSHOT
 ```
 Push it:
 ```
-docker push artifactory.epam.com:6018/ava-api-account-service:1.0.0-SNAPSHOT
+docker push artifactory.***.com:6018/api-account-service:1.0.0-SNAPSHOT
 ```
 
 ## 2. Connect to the Remote server
@@ -53,18 +53,18 @@ Now you can use **kubectl** commands remotely but from now on you **cannot** use
 ## 2. Remote Helm deployment
 ```
 kubectl create namespace development
-kubectl create secret docker-registry regcred --docker-server=artifactory.epam.com:6018 \
-  --docker-username=<epam-username/epam-technical-username> \
-  --docker-password=<epam-password/epam-technical-user-password> \
-  --docker-email=<epam-email/epam-technical-user-email>
+kubectl create secret docker-registry regcred --docker-server=artifactory.company.com:6018 \
+  --docker-username=<company-username/company-technical-username> \
+  --docker-password=<company-password/company-technical-user-password> \
+  --docker-email=<company-email/company-technical-user-email>
 
 helm install --debug --name account-service \
   --set nameOverride=account-service \
-  --set image.repository=artifactory.epam.com:6018 \
-  --set image.name=ava-api-account-service \
+  --set image.repository=artifactory.company.com:6018 \
+  --set image.name=account-service \
   --set image.tag=1.0.0-SNAPSHOT \
   --set imagePullSecret=regcred \
-  --set ingress.wildCardDomain=ava-api-account-service.10.253.129.19.nip.io \
+  --set ingress.wildCardDomain=account-service.10.***.129.***.nip.io \
   --set image.pullPolicy=Always \
   --namespace=development \
   service

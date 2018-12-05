@@ -16,7 +16,7 @@ https://www.virtualbox.org/wiki/Downloads
 Create VM by changing the vm-driver parameter to virtualbox
 - `minikube start --cpus 3 --memory 4096 --vm-driver virtualbox`
 
-Side note on IP address: In order to run minikube in NAT you need to use VirtualBox instead of Hyper-V (Hyper-V virtual switch IP will be your EPAM IP.)
+Side note on IP address: In order to run minikube in NAT you need to use VirtualBox instead of Hyper-V (Hyper-V virtual switch IP will be your COMPANY IP.)
 
 **Installing Minikube on Hiper-V**
 
@@ -47,14 +47,14 @@ kubectl: Correctly Configured: pointing to minikube-vm at 10.0.12.190
 - `kubectl describe pod #pod_name`
 - `kubectl delete pod #pod_name` - In order to make Minikube reload the pod with an updated Docker image based on the scale defined in the deployment.
 
-- Navigate to the `ava-api` project in Git Bash.
+- Navigate to the project in Git Bash.
 - Make sure you've already built the project by `gradle build`.
 - Configure minikube to use your local docker registry by `eval $(minikube docker-env)`.
 - Build service images:
  - `cd services/alfa-service`
- - `docker image build . -t avaloq/alfa-service`
+ - `docker image build . -t alfa-service`
  - `cd ../beta-service`
- - `docker image build . -t avaloq/beta-service`
+ - `docker image build . -t beta-service`
 - Create kubernetes deployments and services:
  - `cd ../../deployment`
  - `kubectl apply -f zipkin-server.yaml`
