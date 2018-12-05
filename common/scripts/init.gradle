@@ -12,7 +12,7 @@ allprojects {
 
 		artifactory_user         =  getEnvOrDefault('ARTIFACTORY_USER',            '****@acme.com')
 		artifactory_password     =  getEnvOrDefault('ARTIFACTORY_PASSWORD',        '<encrypted password>')
-		artifactory_contextUrl   =  getEnvOrDefault('ARTIFACTORY_CONTEXT_URL',     '****)
+		artifactory_contextUrl   =  getEnvOrDefault('ARTIFACTORY_CONTEXT_URL',     '****')
 		artifactory_repo_key     =  getEnvOrDefault('ARTIFACTORY_REPO_KEY',        '*REPO-KEY*')
 
 		nodeJsLocation           =  getEnvOrDefault('NODE_JS_LOCATION',            '<node.exe>')
@@ -32,7 +32,6 @@ allprojects {
 			}
 		}
 		maven { url "https://plugins.gradle.org/m2/" }
-		maven { url "http://dl.bintray.com/acme/reportportal" }
 		maven { url "http://dl.bintray.com/acme/reportportal" }
 	}
 
