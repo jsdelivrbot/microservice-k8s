@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 //@RequiredArgsConstructor
 public class OrdersAdapter implements OrdersApiDelegate {
@@ -32,8 +33,10 @@ public class OrdersAdapter implements OrdersApiDelegate {
     }
 
     @Override
-    public ResponseEntity<Order> getOrders(String orderId) {
-        return notImplemented();
+    public ResponseEntity<Order> getOrders(Long orderId) {
+        Optional<Order> order = orderService.getOrder(orderId);
+
+        return order.isPresent() ? ResponseEntity.ok(order.get()) : (ResponseEntity<Order>) ResponseEntity.notFound();
     }
 
     private <T> ResponseEntity<T> notImplemented() {

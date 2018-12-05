@@ -47,7 +47,7 @@ public interface OrdersApiDelegate {
     /**
      * @see OrdersApi#getOrders
      */
-    default ResponseEntity<Order> getOrders(String orderId) {
+    default ResponseEntity<Order> getOrders(Long orderId) {
         if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
             if (getAcceptHeader().get().contains("application/json")) {
                 try {

@@ -30,7 +30,7 @@ public interface OrdersApi {
     @RequestMapping(value = "/orders/{orderId}",
             produces = { "application/vnd.epam.order.management+json" },
             method = RequestMethod.GET)
-    default ResponseEntity<Order> getOrders(@PathVariable("orderId") String orderId ) {
+    default ResponseEntity<Order> getOrders(@PathVariable("orderId") Long orderId ) {
         return getDelegate().getOrders(orderId);
     }
 
