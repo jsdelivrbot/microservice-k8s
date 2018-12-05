@@ -28,8 +28,6 @@ public class Order {
   @JsonProperty("ccy")
   private String ccy = null;
 
-  @NotNull
-  @Valid
   public Long getId() {
     return id;
   }
