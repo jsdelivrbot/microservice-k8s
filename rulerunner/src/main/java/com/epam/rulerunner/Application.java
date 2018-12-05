@@ -1,5 +1,6 @@
 package com.epam.rulerunner;
 
+import com.epam.event.kafka.producer.config.EnableEpamKafkaProducer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //        "com.epam.contract.api.card_management.client",
 //        "com.epam.contract.api.external.client"
 //})
+@EnableEpamKafkaProducer
 public class Application {
 
     public static void main(String[] args) {

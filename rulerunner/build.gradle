@@ -27,6 +27,10 @@ apply from: "${commonScriptLocation}/common-broadridge-base-service.gradle"
 apply plugin: 'project-report'
 
 dependencies {
+    // GUAVA
+    compile "com.google.guava:guava"
 
     compile "com.h2database:h2:${h2DbVersion}"
+
+    compile "com.epam:kafka-connector:1.0.0-SNAPSHOT"
 }

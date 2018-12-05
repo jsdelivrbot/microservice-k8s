@@ -65,7 +65,7 @@ ext {
 
     springFrameworkBomVersion = '5.1.2.RELEASE'
 
-    springKafkaVersion = '2.2.0.RELEASE'
+    springKafkaVersion = '2.2.2.RELEASE'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -127,7 +127,7 @@ dependencyManagement {
         dependency("javax.validation:validation-api:$validationVersion")
 
         // Lombok
-        dependency("org.projectlombok:lombok:$lombokVersion")
+        //dependency("org.projectlombok:lombok:$lombokVersion")
 
         // Cache
         //dependency("net.sf.ehcache:ehcache-core:+")

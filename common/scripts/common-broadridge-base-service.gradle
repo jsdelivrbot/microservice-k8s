@@ -46,10 +46,13 @@ allprojects {
         // SpringBoot Cache
         compile "org.springframework.boot:spring-boot-starter-cache"
 
+        compile "org.springframework.kafka:spring-kafka"
+
         //SpringBoot Data
         compile ('org.springframework.boot:spring-boot-starter-data-jpa'){
             exclude group: 'org.hibernate'
         }
+
         compile "org.hibernate:hibernate-core"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
         compile "io.github.benas:random-beans"

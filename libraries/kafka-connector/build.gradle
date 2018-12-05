@@ -1,0 +1,54 @@
+buildscript {
+	repositories.addAll(extRepos)
+
+    ext {
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+        springDependencyManagementVersion = '1.0.6.RELEASE'
+    }
+	
+    dependencies {
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementVersion"
+    }
+}
+
+apply plugin: 'external_script'
+
+ext {
+    eventLibVersion = '1.0.0-SNAPSHOT'
+
+    commonVersion = '1.0.0-SNAPSHOT'
+
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+group 'com.epam'
+version '1.0.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply from: "${commonScriptLocation}/common-lib.gradle"
+
+dependencies {
+    // SPRING BOOT
+    compile "org.springframework.boot:spring-boot-starter"
+
+    // GUAVA
+    compile "com.google.guava:guava"
+
+    //JACKSON
+    compile "com.fasterxml.jackson.core:jackson-databind"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+
+    // KAFKA
+    compile "org.springframework.kafka:spring-kafka"
+
+    // KAFKA-EVENT-BASE
+    compile "com.epam:kafka-event-base:$eventLibVersion"
+
+    // ZIPKIN
+    //compile "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+
+    // TEST
+    testCompile "org.mockito:mockito-core"
+    testCompile "org.assertj:assertj-core"
+}
