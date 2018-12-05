@@ -41,10 +41,10 @@ scheduler:
 
 timezone: UTC
 
-rulerunner_:
-  url: http://localhost:8080
-  name: http://localhost:8080
+#rulerunner_:
+#  url: http://localhost:8080
+#  name: http://localhost:8080
 
-external_:
-  name: http://localhost:8081
-  url: http://localhost:8081
+#external_:
+#  name: http://localhost:8081
+#  url: http://localhost:8081

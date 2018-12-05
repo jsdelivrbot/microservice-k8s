@@ -51,7 +51,9 @@ allprojects {
             exclude group: 'org.hibernate'
         }
         compile "org.hibernate:hibernate-core"
-
+        compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+        compile "io.github.benas:random-beans"
+        
         //Cloud
         //compile 'org.springframework.cloud:spring-cloud-starter-config'
         //compile 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
@@ -63,7 +65,8 @@ allprojects {
         compile "org.liquibase:liquibase-core"
         compile "com.mattbertolini:liquibase-slf4j"
 
-        compile 'commons-collections:commons-collections'
+        compile "commons-collections:commons-collections"
+        compile "commons-io:commons-io"
 
         // Logging
         compile 'ch.qos.logback:logback-classic'

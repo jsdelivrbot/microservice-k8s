@@ -9,12 +9,11 @@ buildscript {
 ext {
     javaVersion = 'JavaVersion.VERSION_1_8'
 
-
-
     postgreSqlVersion = '42.2.0'
     hikariCPVersion = '2.7.6'
     
     hibernateVersion = '5.3.7.Final'
+    randomBeansVersion = '3.7.0'
 
     lombokVersion = '1.16.18'
 
@@ -55,7 +54,6 @@ ext {
     sleuthZipkinVersion = '1.2.5.RELEASE'
 
     serviceBaseVersion = '1.0.0-SNAPSHOT'
-
 
     springBootBomVersion = '2.1.0.RELEASE'
     springBootStarterVersion = springBootBomVersion
@@ -155,6 +153,8 @@ dependencyManagement {
         dependency("commons-validator:commons-validator:$apacheCommonsValidatorVersion")
 
         dependency("com.google.guava:guava:$guavaVersion")
+
+        dependency("io.github.benas:random-beans:$randomBeansVersion")
 		//dependency("com.google.protobuf:protobuf-java:+")
 
         dependency("org.hamcrest:hamcrest-all:$hamcrestVersion")

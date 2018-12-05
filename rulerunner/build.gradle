@@ -13,14 +13,10 @@ buildscript {
 apply plugin: 'external_script'
 
 ext {
-//    apiName = 'card-management'
-//    apiVersion = '1.0.0-SNAPSHOT'
     commonVersion = '1.0.0-SNAPSHOT'
     externalMockVersion = '1.0.0-SNAPSHOT'
     jvmArgs = '-Xmx512M'
-    //liquibaseVersion = '3.6.2'
-    //liquibaseLogger2Slf4jVersion = '1.2.1'
-    h2DbVersion = '1.4.194'
+    h2DbVersion = '1.4.197'
     commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
 }
 
@@ -30,24 +26,7 @@ version '1.0.0-SNAPSHOT'
 apply from: "${commonScriptLocation}/common-broadridge-base-service.gradle"
 apply plugin: 'project-report'
 
-
 dependencies {
-//    compile "com.epam.contract.api.${apiName}:${apiName}-java-server-spring:${apiVersion}"
-//    compile "com.epam.contract.api.${apiName}:${apiName}-java-client-feign:${apiVersion}"
-
-//    compile "com.epam.external.mock:external-mock:${externalMockVersion}"
-
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 
     compile "com.h2database:h2:${h2DbVersion}"
-
-    compile "io.github.benas:random-beans:3.7.0"
-
-//    testCompile "com.epam:test-common:1.0.0-SNAPSHOT"
-
-//    compile "io.springfox:springfox-swagger-ui:2.0.2"
-//    compile "io.springfox:springfox-swagger-common:2.8.0"
-//    compile "io.springfox:springfox-spring-web:2.0.1"
-
-    compile "commons-io:commons-io:2.6"
 }
