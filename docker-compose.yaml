@@ -30,6 +30,8 @@ services:
       - zookeeper
     healthcheck:
       test: ["CMD", "/opt/bitnami/kafka/bin/kafka-topics.sh", "--zookeeper", "zookeeper:2181", "--list"]
+    volumes:
+       - ./kafka-logs:/tmp/kafka-logs
   rulerunner-service:
     container_name: k8s-rulerunner
     image: 'epam.com/rulerunner-service'
@@ -42,3 +44,4 @@ services:
       - app-tier
     depends_on:
       - kafka
+
