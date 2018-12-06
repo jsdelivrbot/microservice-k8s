@@ -1,4 +1,4 @@
-package com.epam.rulerunner.event;
+package com.epam.rulerunner.order;
 
 import java.io.Serializable;
 import java.util.Objects;

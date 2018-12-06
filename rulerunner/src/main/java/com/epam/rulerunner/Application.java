@@ -22,7 +22,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //        "com.epam.contract.api.external.client"
 //})
 @EnableEpamKafkaProducer
-@EnableEpamKafkaConsumer(basePackages = "com.epam.rulerunner.event")
+@EnableEpamKafkaConsumer(basePackages = "com.epam.rulerunner.order")
 public class Application {
 
     public static void main(String[] args) {

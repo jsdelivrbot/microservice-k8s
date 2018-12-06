@@ -112,14 +112,6 @@ cd $SCRIPTPATH/../libraries/app-versioning-gradle-plugin
 commandName="Building app-versioning-gradle-plugin"
 runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
 
-cd $SCRIPTPATH/../libraries/kafka-event-base
-commandName="Building kafka-event-base"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
-cd $SCRIPTPATH/../libraries/kafka-connector
-commandName="Building kafka-connector"
-runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
-
 cd $SCRIPTPATH/../libraries/service-base
 commandName="Building service-base"
 runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal

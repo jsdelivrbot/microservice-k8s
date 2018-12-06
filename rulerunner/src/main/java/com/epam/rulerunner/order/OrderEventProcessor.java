@@ -1,4 +1,4 @@
-package com.epam.rulerunner.event;
+package com.epam.rulerunner.order;
 
 import com.epam.rulerunner.event.consumer.EventProcessor;
 import com.epam.rulerunner.event.model.Event;

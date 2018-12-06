@@ -109,7 +109,7 @@ public class KafkaConsumerConfiguration {
     }
 
     @Bean
-    public MessageReceiver messageReceiver(List<EventProcessor> eventProcessors, PackageConfiguration packageConfiguration, ObjectMapper objectMapper) {
+    public MessageReceiver messageReceiver(List<EventProcessor<?>> eventProcessors, PackageConfiguration packageConfiguration, ObjectMapper objectMapper) {
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Event")));
         final Set<BeanDefinition> classes = new HashSet<>();
@@ -118,12 +118,7 @@ public class KafkaConsumerConfiguration {
         for (BeanDefinition bean : classes) {
             try {
                 Class<?> eventClass = Class.forName(bean.getBeanClassName());
-                EventProcessor eventProcessor = eventProcessors
-                        .stream()
-                        .filter(processor -> getTypeName(processor).equals(bean.getBeanClassName()))
-                        .findFirst()
-                        .orElseThrow(EventProcessorNotFoundException::new);
-                eventHandlers.put(eventClass, new JsonEventProcessorDelegate<>(eventClass, eventProcessor, objectMapper));
+                eventHandlers.put(eventClass, createProcessorDelegate(eventProcessors, objectMapper, eventClass));
             } catch (ClassNotFoundException e) {
                 LOG.error("Event class not found", e);
                 throw new RuntimeException(e);
@@ -133,6 +128,19 @@ public class KafkaConsumerConfiguration {
         EventFilter eventFilter = new ClassSimpleNameWhitelistEventFilter(eventHandlers.keySet());
         EventHandler eventHandler = new ClassSimpleNameRoutingEventHandler(eventHandlers);
         return new JsonMessageReceiver(eventFilter, eventHandler, objectMapper);
+    }
+
+    private <E> JsonEventProcessorDelegate<E> createProcessorDelegate(List<EventProcessor<?>> eventProcessors, ObjectMapper objectMapper, Class<E> eventClass) {
+        return new JsonEventProcessorDelegate<>(eventClass, findProcessor(eventProcessors, eventClass), objectMapper);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <E> EventProcessor<E> findProcessor(List<EventProcessor<?>> eventProcessors, Class<E> eventClass) {
+        return (EventProcessor<E>) eventProcessors
+                            .stream()
+                            .filter(processor -> getTypeName(processor).equals(eventClass.getName()))
+                            .findFirst()
+                            .orElseThrow(() -> new EventProcessorNotFoundException(eventClass.getName()));
     }
 
     private String getTypeName(EventProcessor eventProcessor) {
