@@ -33,8 +33,8 @@ services:
     ports:
       - '8080:8080'
     environment:
-      - ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CONNECT=kafka:9092
+      - kafka.connection.host=kafka
+      - kafka.connection.port=9092
     networks:
       - app-tier
     depends_on:
