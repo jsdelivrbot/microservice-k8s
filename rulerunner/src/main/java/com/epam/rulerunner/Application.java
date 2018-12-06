@@ -1,6 +1,7 @@
 package com.epam.rulerunner;
 
-import com.epam.event.kafka.producer.config.EnableEpamKafkaProducer;
+import com.epam.rulerunner.kafka.consumer.config.EnableEpamKafkaConsumer;
+import com.epam.rulerunner.kafka.producer.config.EnableEpamKafkaProducer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -9,6 +10,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaRepositories
 @SpringBootApplication(scanBasePackages = {
+    "com.epam.rulerunner.event",
+    "com.epam.rulerunner.event.kafka",
     "com.epam.rulerunner",
     "com.epam.rulerunner.order",
     "com.epam.rulerunner.order.config",
@@ -19,6 +22,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //        "com.epam.contract.api.external.client"
 //})
 @EnableEpamKafkaProducer
+@EnableEpamKafkaConsumer(basePackages = "com.epam.rulerunner.event")
 public class Application {
 
     public static void main(String[] args) {

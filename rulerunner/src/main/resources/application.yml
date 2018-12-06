@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: RuleRunner
+    name: rulerunner
   h2:
     console.enabled: true
     console.path: /h2
@@ -50,3 +50,11 @@ timezone: UTC
 #external_:
 #  name: http://localhost:8081
 #  url: http://localhost:8081
+
+kafka:
+  host: localhost
+  port: 9092
+  topic:
+    inboundTopic: inboundTopic
+    outboundTopic: outboundTopic
+  group: defaultGroup
