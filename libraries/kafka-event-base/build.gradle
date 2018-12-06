@@ -33,5 +33,6 @@ dependencies {
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     compile 'org.apache.commons:commons-lang3'
     compile 'org.slf4j:slf4j-api'
+    testCompile 'junit:junit'
     testCompile 'org.mockito:mockito-all:1.10.19'
 }
