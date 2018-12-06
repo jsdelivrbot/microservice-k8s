@@ -13,8 +13,8 @@ services:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+    #healthcheck:
+    #  test: ["CMD", "curl", "-f", "http://localhost"]
   kafka:
     image: 'bitnami/kafka:latest'
     networks:
@@ -26,8 +26,8 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
-    command: >
-      /opt/bitnami/kafka/bin/kafka-topics.sh --create --zookeeper zookeeper:2181 --topic rulerunner-output --partitions 1 --replication-factor 1
+    #command: >
+    #  /opt/bitnami/kafka/bin/kafka-topics.sh --create --zookeeper zookeeper:2181 --topic rulerunner-output --partitions 1 --replication-factor 1
   rulerunner-service:
     image: 'epam.com/rulerunner-service'
     ports:
