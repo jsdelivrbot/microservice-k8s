@@ -3,6 +3,7 @@ package com.epam.rulerunner.order.server;
 
 import com.epam.rulerunner.order.OrdersService;
 import com.epam.rulerunner.order.model.Order;
+import com.epam.rulerunner.order.service.RuleEngine;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -13,16 +14,19 @@ import java.util.Optional;
 public class OrdersAdapter implements OrdersApiDelegate {
 
     private final OrdersService orderService;
+    private final RuleEngine ruleEngine;
 
-    public OrdersAdapter(OrdersService orderService) {
+
+    public OrdersAdapter(OrdersService orderService, RuleEngine ruleEngine) {
         this.orderService = orderService;
+        this.ruleEngine = ruleEngine;
     }
 
     @Override
     public ResponseEntity<Void> sendOrder(Order order) {
-        orderService.sendOrder(order);
-
-        return ResponseEntity.accepted().build();
+            ruleEngine.evaluateRules(order);
+            orderService.sendOrder(order);
+            return ResponseEntity.accepted().build();
     }
 
     @Override

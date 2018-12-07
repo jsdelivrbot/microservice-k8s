@@ -19,14 +19,12 @@ public class FixEventProcessor implements EventProcessor<FixEvent> {
 
     private final ConversionService conversionService;
     private final OrderEnricher enricher;
-    private final RuleEngine rules;
     private final OrdersService service;
 
     @Autowired
-    public FixEventProcessor(ConversionService conversionService, OrderEnricher enricher, RuleEngine rules, OrdersService service) {
+    public FixEventProcessor(ConversionService conversionService, OrderEnricher enricher, OrdersService service) {
         this.conversionService = conversionService;
         this.enricher = enricher;
-        this.rules = rules;
         this.service = service;
     }
 
@@ -34,8 +32,8 @@ public class FixEventProcessor implements EventProcessor<FixEvent> {
     public void process(Event event, FixEvent payload) {
         LOG.info("FIX message processed: {}", payload);
         Order order = conversionService.convert(payload, Order.class);
-        Order result = rules.evaluateRules(enricher.enrich(order));
-        service.sendOrder(order);
+        Order result = enricher.enrich(order);
+        service.sendOrder(result);
     }
 
 }

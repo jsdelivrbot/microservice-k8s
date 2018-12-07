@@ -5,6 +5,7 @@ import com.epam.rulerunner.order.service.OrderEnricher;
 import com.epam.rulerunner.order.service.RuleEngine;
 import com.epam.rulerunner.order.service.impl.DummyOrderEnricher;
 import com.epam.rulerunner.order.service.impl.DummyRuleEngine;
+import org.kie.api.runtime.KieContainer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,11 +15,6 @@ public class FixConfig {
     @Bean
     public OrderEnricher orderEnricher() {
         return new DummyOrderEnricher();
-    }
-
-    @Bean
-    public RuleEngine ruleEngine() {
-        return new DummyRuleEngine();
     }
 
     @Bean

@@ -13,7 +13,7 @@ public class OrderEntityToOrderConverter implements Converter<OrderEntity, Order
 
         order.setId(source.getId());
         order.setType(source.getType());
-        order.setAccount(source.getType());
+        order.setAccount(source.getAccount());
         order.setAmount(source.getAmount());
         order.setCcy(source.getCcy());
         order.setRawFixMessage(source.getRawFixMessage());

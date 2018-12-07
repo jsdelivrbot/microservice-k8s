@@ -1,0 +1,15 @@
+package example
+
+import com.epam.rulerunner.order.model.Order;
+
+dialect "java"
+rule "Amount larger than 100"
+
+	when
+		order : Order ( amount > 100 )
+		
+	then 
+		order.setType("kurvajó");
+
+end	
+

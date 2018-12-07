@@ -18,6 +18,7 @@ ext {
     jvmArgs = '-Xmx512M'
     h2DbVersion = '1.4.197'
     commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+	droolsVersion = '7.15.0.Final'
 }
 
 group 'com.epam.rulerunner'
@@ -29,6 +30,7 @@ apply plugin: 'project-report'
 dependencies {
     // GUAVA
     compile "com.google.guava:guava"
-
     compile "com.h2database:h2:${h2DbVersion}"
+	compile "org.kie:kie-api:${droolsVersion}"
+	compile "org.drools:drools-compiler:${droolsVersion}"
 }
