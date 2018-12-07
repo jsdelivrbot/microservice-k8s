@@ -20,6 +20,10 @@ public class OrderEntity {
 
     private String ccy;
 
+    @Lob
+    @Column(name = "fix")
+    private String rawFixMessage;
+
     public OrderEntity() {
     }
 
@@ -61,5 +65,13 @@ public class OrderEntity {
 
     public void setCcy(String ccy) {
         this.ccy = ccy;
+    }
+
+    public String getRawFixMessage() {
+        return rawFixMessage;
+    }
+
+    public void setRawFixMessage(String rawFixMessage) {
+        this.rawFixMessage = rawFixMessage;
     }
 }

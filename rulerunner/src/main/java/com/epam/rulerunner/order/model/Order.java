@@ -28,6 +28,9 @@ public class Order {
   @JsonProperty("ccy")
   private String ccy = null;
 
+  @JsonProperty("rawFixMessage")
+  private String rawFixMessage = null;
+
   public Long getId() {
     return id;
   }
@@ -76,6 +79,15 @@ public class Order {
     this.ccy = ccy;
   }
 
+  @Valid
+  public String getRawFixMessage() {
+    return rawFixMessage;
+  }
+
+  public void setRawFixMessage(String rawFixMessage) {
+    this.rawFixMessage = rawFixMessage;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -85,12 +97,13 @@ public class Order {
             Objects.equals(type, order.type) &&
             Objects.equals(account, order.account) &&
             Objects.equals(amount, order.amount) &&
-            Objects.equals(ccy, order.ccy);
+            Objects.equals(ccy, order.ccy) &&
+            Objects.equals(rawFixMessage, order.rawFixMessage);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, type, account, amount, ccy);
+    return Objects.hash(id, type, account, amount, ccy, rawFixMessage);
   }
 
   @Override
@@ -101,6 +114,7 @@ public class Order {
             ", account='" + account + '\'' +
             ", amount=" + amount +
             ", ccy='" + ccy + '\'' +
+            ", rawFixMessage='" + rawFixMessage + '\'' +
             '}';
   }
 
@@ -114,5 +128,6 @@ public class Order {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
 }
 

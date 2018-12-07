@@ -23,7 +23,7 @@ public class OrdersConfig {
     }
 
     @Bean
-    public OrdersService cardService(ConversionService conversionService, OrdersRepository ordersRepository) {
+    public OrdersService ordersService(ConversionService conversionService, OrdersRepository ordersRepository) {
         return new OrdersService(conversionService, ordersRepository);
     }
 
@@ -33,7 +33,7 @@ public class OrdersConfig {
     }
 
     @Bean
-    public OrderEntityToOrderConverter cardDetailsEntityToCardDetailsConverter() {
+    public OrderEntityToOrderConverter orderEntityToOrderConverter() {
         return new OrderEntityToOrderConverter();
     }
 }

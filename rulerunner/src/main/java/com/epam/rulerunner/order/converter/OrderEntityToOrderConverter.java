@@ -16,6 +16,7 @@ public class OrderEntityToOrderConverter implements Converter<OrderEntity, Order
         order.setAccount(source.getType());
         order.setAmount(source.getAmount());
         order.setCcy(source.getCcy());
+        order.setRawFixMessage(source.getRawFixMessage());
 
         return order;
     }

@@ -12,19 +12,22 @@
 
         <createTable tableName="orders">
             <column name="id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"></constraints>
+                <constraints primaryKey="true" nullable="false" />
             </column>
             <column name="type" type="varchar(255)">
-                <constraints nullable="false"></constraints>
+                <constraints nullable="false" />
             </column>
             <column name="account" type="varchar(255)">
-                <constraints nullable="false"></constraints>
+                <constraints nullable="false" />
             </column>
             <column name="amount" type="int">
-                <constraints nullable="false"></constraints>
+                <constraints nullable="false" />
             </column>
             <column name="ccy" type="varchar(3)">
-                <constraints nullable="false"></constraints>
+                <constraints nullable="false" />
+            </column>
+            <column name="fix" type="text">
+                <constraints nullable="true" />
             </column>
         </createTable>
     </changeSet>
