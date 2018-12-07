@@ -33,5 +33,37 @@ Prerequisites:
 - Gradle 4.10.2
 - Docker for Windows with Kubernetes enabled (latest)
 
-Go to `./common` and execute `./buildAll.sh`.
-Go to `./common` and execute `./helmDeployAll.sh`.
+
+    ./common/buildAll.sh
+    ./common/helmDeployAll.sh
+
+## Local run
+
+Requires docker composer to be installed.
+
+    ./docker-compose-up.sh
+
+This starts one instance of each of the following docker containers:
+- zookeeper
+- kafka
+- rulerunner service
+
+With the following command, you can stop and remove all of the containers (use only locally & with care):
+
+    docker rm -f $(docker ps -a -q)
+
+## Demo
+
+To watch the rulerunner service output, use the following command
+
+    docker logs -f k8s-rulerunner
+
+To feed the dockerized kafka with sample FIX messages, use one of the following commands:
+
+    cd demo
+
+    # TTY compatible bash
+    ./run-producer-console-file.sh
+
+    # MinGW compatible bash (under windows)
+    ./run-producer-console-file-mingw.sh

@@ -2,9 +2,13 @@ package com.epam.rulerunner.kafka.consumer.config;
 
 import com.epam.rulerunner.event.consumer.*;
 import com.epam.rulerunner.kafka.consumer.domain.exception.EventProcessorNotFoundException;
-import com.epam.rulerunner.kafka.consumer.service.*;
+import com.epam.rulerunner.kafka.consumer.service.DefaultEventConsumer;
+import com.epam.rulerunner.kafka.consumer.service.EventConsumer;
+import com.epam.rulerunner.kafka.consumer.service.KafkaErrorHandler;
+import com.epam.rulerunner.kafka.consumer.service.KafkaEventConsumerService;
 import com.epam.rulerunner.kafka.jackson.JacksonConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.epam.rulerunner.order.event.FixEvent;
+import com.epam.rulerunner.order.event.RawFixMessageReceiver;
 import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -12,26 +16,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-//import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
+
+//import org.springframework.cloud.sleuth.Tracer;
 
 //@Slf4j
 @Configuration
@@ -109,29 +114,25 @@ public class KafkaConsumerConfiguration {
     }
 
     @Bean
-    public MessageReceiver messageReceiver(List<EventProcessor<?>> eventProcessors, PackageConfiguration packageConfiguration, ObjectMapper objectMapper) {
-        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Event")));
-        final Set<BeanDefinition> classes = new HashSet<>();
-        packageConfiguration.getPackages().forEach(s -> classes.addAll(provider.findCandidateComponents(s)));
+    public MessageReceiver messageReceiver(List<EventProcessor<?>> eventProcessors) {
+        return fixMessageReceiver(eventProcessors, ImmutableMap.of(FixEvent.class, FixEvent::new));
+    }
+
+    @SuppressWarnings("unchecked")
+    private MessageReceiver fixMessageReceiver(List<EventProcessor<?>> eventProcessors, Map<Class<?>, Converter<String, ?>> eventConverters) {
         Map<Class, EventHandler> eventHandlers = new HashMap<>();
-        for (BeanDefinition bean : classes) {
-            try {
-                Class<?> eventClass = Class.forName(bean.getBeanClassName());
-                eventHandlers.put(eventClass, createProcessorDelegate(eventProcessors, objectMapper, eventClass));
-            } catch (ClassNotFoundException e) {
-                LOG.error("Event class not found", e);
-                throw new RuntimeException(e);
-            }
+        for (Class<?> eventClass : eventConverters.keySet()) {
+            eventHandlers.put(eventClass, createHandler(eventProcessors, (Class<Object>) eventClass, (Converter<String, Object>) eventConverters.get(eventClass)));
         }
 
         EventFilter eventFilter = new ClassSimpleNameWhitelistEventFilter(eventHandlers.keySet());
         EventHandler eventHandler = new ClassSimpleNameRoutingEventHandler(eventHandlers);
-        return new JsonMessageReceiver(eventFilter, eventHandler, objectMapper);
+        return new RawFixMessageReceiver(eventFilter, eventHandler);
     }
 
-    private <E> JsonEventProcessorDelegate<E> createProcessorDelegate(List<EventProcessor<?>> eventProcessors, ObjectMapper objectMapper, Class<E> eventClass) {
-        return new JsonEventProcessorDelegate<>(eventClass, findProcessor(eventProcessors, eventClass), objectMapper);
+    private <E> EventHandler createHandler(List<EventProcessor<?>> eventProcessors, Class<E> eventClass, Converter<String, E> eventConverter) {
+        EventProcessor<E> processor = findProcessor(eventProcessors, eventClass);
+        return (event, payload) -> processor.process(event, eventConverter.convert(payload));
     }
 
     @SuppressWarnings("unchecked")

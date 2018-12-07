@@ -21,7 +21,7 @@ public class KafkaEventConsumerService {
         this.delegate = delegate;
     }
 
-    @KafkaListener(topics = "${kafka.common_topic:default_topic}", containerFactory = "eventContainerFactory", errorHandler = "kafkaErrorHandler")
+    @KafkaListener(topics = "${kafka.topic.inboundTopic:default_topic}", containerFactory = "eventContainerFactory", errorHandler = "kafkaErrorHandler")
     public void consumeEvent(/*@Header(value = TraceMessageHeaders.TRACE_ID_NAME, required = false) byte[] traceIdByte,
                                  @Header(value = TraceMessageHeaders.SPAN_ID_NAME, required = false) byte[] spanIdByte,
                                  @Header(value = TraceMessageHeaders.SPAN_FLAGS_NAME, required = false) byte[] flagsByte,
@@ -29,7 +29,8 @@ public class KafkaEventConsumerService {
                                  @Header(value = TraceMessageHeaders.SPAN_NAME_NAME, required = false) byte[] spanNameByte,
                                  @Header(value = TraceMessageHeaders.PARENT_ID_NAME, required = false) byte[] parentIdByte,*/
                                  @Payload ConsumerRecord event) {
-        LOG.info(event.toString());
+        LOG.info("Topic listener read: {}", event.toString());
+
         if(!(event.value() instanceof String)){
             throw new IllegalStateException("Event is not a string");
         }
