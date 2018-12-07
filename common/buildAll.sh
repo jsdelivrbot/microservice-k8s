@@ -116,6 +116,10 @@ cd $SCRIPTPATH/../libraries/service-base
 commandName="Building service-base"
 runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
 
+cd $SCRIPTPATH/../libraries/fix-message-converter
+commandName="Building fix-message-converter"
+runwithstatus "$commandName" ./gradlew clean $executeTests publishToMavenLocal
+
 cd $SCRIPTPATH/../rulerunner
 commandName="Building rule runner service"
 runwithstatus "$commandName" ./gradlew clean build $executeTests
