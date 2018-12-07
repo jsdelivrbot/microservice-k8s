@@ -2,8 +2,8 @@ package com.epam.rulerunner.order.service;
 
 import com.epam.rulerunner.order.model.Order;
 
-public interface RuleEngine {
+public interface OrderEnricher {
 
-    Order evaluateRules(Order message);
+    Order enrich(Order message);
 
 }

@@ -3,9 +3,8 @@ package com.epam.rulerunner.order.event;
 import com.epam.rulerunner.event.consumer.EventProcessor;
 import com.epam.rulerunner.event.model.Event;
 import com.epam.rulerunner.order.OrdersService;
-import com.epam.rulerunner.order.model.FixMessage;
 import com.epam.rulerunner.order.model.Order;
-import com.epam.rulerunner.order.service.FixMessageEnricher;
+import com.epam.rulerunner.order.service.OrderEnricher;
 import com.epam.rulerunner.order.service.RuleEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,12 @@ public class FixEventProcessor implements EventProcessor<FixEvent> {
     private final static Logger LOG = LoggerFactory.getLogger(FixEventProcessor.class);
 
     private final ConversionService conversionService;
-    private final FixMessageEnricher enricher;
+    private final OrderEnricher enricher;
     private final RuleEngine rules;
     private final OrdersService service;
 
     @Autowired
-    public FixEventProcessor(ConversionService conversionService, FixMessageEnricher enricher, RuleEngine rules, OrdersService service) {
+    public FixEventProcessor(ConversionService conversionService, OrderEnricher enricher, RuleEngine rules, OrdersService service) {
         this.conversionService = conversionService;
         this.enricher = enricher;
         this.rules = rules;
@@ -34,9 +33,8 @@ public class FixEventProcessor implements EventProcessor<FixEvent> {
     @Override
     public void process(Event event, FixEvent payload) {
         LOG.info("FIX message processed: {}", payload);
-        FixMessage message = conversionService.convert(payload, FixMessage.class);
-        FixMessage result = rules.evaluateRules(enricher.enrich(message));
-        Order order = conversionService.convert(result, Order.class);
+        Order order = conversionService.convert(payload, Order.class);
+        Order result = rules.evaluateRules(enricher.enrich(order));
         service.sendOrder(order);
     }
 
