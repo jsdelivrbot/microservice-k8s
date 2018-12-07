@@ -1,0 +1,38 @@
+buildscript {
+	repositories.addAll(extRepos)
+
+	ext {
+        externalScriptPluginVersion = '1.0.0-SNAPSHOT'
+        springDependencyManagementVersion = '1.0.6.RELEASE'
+    }
+
+    dependencies {
+        classpath "com.epam.gradle:external-script-gradle-plugin:$externalScriptPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$springDependencyManagementVersion"
+    }
+}
+
+apply plugin: 'external_script'
+
+ext {
+    commonVersion = '1.0.0-SNAPSHOT'
+
+    commonScriptLocation = scriptExtension.resolveCommonScriptLocation("com.epam:common:$commonVersion")
+}
+
+group 'com.epam'
+version '1.0.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
+
+apply from: "${commonScriptLocation}/common-lib.gradle"
+
+dependencies {
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    compile 'org.apache.commons:commons-lang3'
+    compile 'org.slf4j:slf4j-api'
+    testCompile 'junit:junit'
+    testCompile 'org.mockito:mockito-all:1.10.19'
+}
